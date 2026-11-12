@@ -12,6 +12,7 @@ import {
   Boulder, Bush, ChartBoard, Cloud, Cubes, DescentSign, Furrows, Gauge, HayBale, Hut, NeuronTree, Pine, Reeds,
   SigmoidSign, Stones, SummitFlag, Wheat, Bars,
 } from './Scenery.jsx';
+import { Castle, Fountain, Obelisks, Observatory, RuinedArch, SummitShrine, Temple, Watchtower } from './Landmarks.jsx';
 import { BOT_PAD, DEPTH, HH, HW, MAP_H, NODES, ROWS, TOP_PAD, W, dia, hash, heroPos, levelNode, px, py } from './geometry.js';
 
 /* Ground colours per district: [light, dark, cliff left face, cliff right face]. */
@@ -96,9 +97,39 @@ function pickDecor(zone, x, y, k, r) {
   }
 }
 
+/* One big landmark per district (two on the ridge), set beside the path at a share of the chapter.
+   [chapter, where along the chapter (0–1), building, side flip] */
+const LANDMARK_SPECS = [
+  [0, 0.5, Watchtower, false],
+  [1, 0.5, Temple, false],
+  [2, 0.45, RuinedArch, false],
+  [3, 0.5, Fountain, false],
+  [4, 0.5, Castle, false],
+  [5, 0.25, Obelisks, false],
+  [5, 0.8, Observatory, true],
+  [6, 0.55, SummitShrine, false],
+];
+const FOOTPRINT = 2; // cells kept clear around a landmark, in each direction
+const LANDMARKS = LANDMARK_SPECS.map(([ci, at, Building, flip], i) => {
+  const levels = NODES.filter((n) => n.type === 'level' && n.ch === ci);
+  const node = levels[Math.min(levels.length - 1, Math.floor(at * levels.length))];
+  let side = node.off >= 0 ? -1 : 1;
+  if (flip) side = -side;
+  // Four columns beside the path, and never past column ±5 so the building stays inside the map.
+  let k = Math.max(-5, Math.min(5, node.off + side * 4));
+  if ((((k + node.r) % 2) + 2) % 2 !== 0) k += Math.abs(k + side) <= 5 ? side : -side;
+  return { key: `lm${i}`, k, r: node.r, h: groundCell(k, node.r).h, Building };
+});
+/* Ground cells under a landmark: flat at the landmark's height, no water, no decoration. */
+const RESERVED = new Map();
+LANDMARKS.forEach((m) => {
+  for (let dk = -FOOTPRINT; dk <= FOOTPRINT; dk++) for (let dr = -FOOTPRINT; dr <= FOOTPRINT; dr++) RESERVED.set(`${m.k + dk},${m.r + dr}`, m.h);
+});
+
 /* Ground and scenery never change, so they are built once and depth-sorted with the tiles later. */
 const STATIC_LAYER = (() => {
   const out = [];
+  LANDMARKS.forEach(({ key, k, r, h, Building }) => out.push({ y: py(r) + 0.5, key, el: <Building x={px(k)} y={py(r) - h} /> }));
   const rowMax = ROWS + Math.ceil(TOP_PAD / HH) + 2;
   for (let r = -Math.ceil(BOT_PAD / HH) - 2; r < rowMax; r++) {
     for (let k = -8; k <= 8; k++) {
@@ -106,6 +137,14 @@ const STATIC_LAYER = (() => {
       const x = px(k);
       const y = py(r);
       const c = groundCell(k, r);
+      const reserved = RESERVED.has(`${k},${r}`) && c.d >= 2;
+      if (reserved) {
+        c.h = RESERVED.get(`${k},${r}`);
+        if (c.water) {
+          c.water = false;
+          c.top = GROUND[c.zone][0];
+        }
+      }
       const top = y - c.h;
       out.push({
         y,
@@ -125,7 +164,7 @@ const STATIC_LAYER = (() => {
       });
       // Keep the path corridor clear; decorate about half of the other cells.
       const nearPath = c.d <= 1 && Math.abs(r) < ROWS + 3 && r > -3;
-      if (!c.water && !nearPath && hash(k + 17, r - 5) > 0.5) out.push({ y: y + 0.01, key: `d${k},${r}`, el: pickDecor(c.zone, x, top, k, r) });
+      if (!c.water && !nearPath && !reserved && hash(k + 17, r - 5) > 0.5) out.push({ y: y + 0.01, key: `d${k},${r}`, el: pickDecor(c.zone, x, top, k, r) });
     }
   }
   // The summit flag, above the last tile.

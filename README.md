@@ -79,8 +79,11 @@ classification metrics) and the scikit-learn user guide on
 
 ### The map
 Isometric SVG drawn by React (`src/components/map`): one district per chapter with raised ground,
-canyon walls, water, and landmarks (loss-curve signs, sigmoid signs, data cubes, gauges, chart
-boards, the summit flag). Level tiles are grey stone with a lock, green with a check when done, and
+canyon walls, water, and small landmarks (loss-curve signs, sigmoid signs, data cubes, gauges,
+chart boards, the summit flag). Each district also has a large stone building beside the path
+(`src/components/map/Landmarks.jsx`): a watchtower on the plains, a stepped temple in the fields,
+a ruined arch on the canyon rim, a fountain at the springs, a castle in the village, obelisks and
+a domed observatory on the ridge, and a shrine on a golden plaza at the summit. Level tiles are grey stone with a lock, green with a check when done, and
 terracotta for the current one; stone stairs link the chapters. Clouds cover the districts more
 than one chapter ahead and lift when a chapter opens.
 
@@ -174,7 +177,7 @@ neuropath/
     │   ├── PlayerContext.jsx  Signed-in user and progress, shared by all pages
     │   └── ToastContext.jsx   Notifications
     ├── components/
-    │   ├── map/               District map: geometry, scenery and landmarks, GameMap
+    │   ├── map/               District map: geometry, scenery, Landmarks (castle, temple…), GameMap
     │   ├── labs/              Line, Multi, Descent, Logistic, Knn, Metrics, Overfit labs
     │   ├── layout/            App shell, public header, loading
     │   ├── Avatar.jsx, Icon.jsx, Logo.jsx, ui.jsx
