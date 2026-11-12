@@ -1,19 +1,27 @@
 /* Decorations for each biome. All drawn in SVG, no images. */
-export function NeuronTree({ x, y, s }) {
+/* A tree whose canopy is made of isometric cubes, matching the stone blocks of the map. */
+const LEAF = ['#76853F', '#5F6D32', '#454F22']; // top, left face, right face
+const LEAF_LIGHT = ['#8C9A4C', '#6F7E39', '#525D28'];
+function LeafCube({ x, y, w, c }) {
+  const d = w * 0.58; // depth of the top diamond
+  const h = w * 0.9; // height of the side faces
+  return (
+    <g>
+      <polygon points={`${x - w},${y} ${x},${y + d} ${x},${y + d + h} ${x - w},${y + h}`} fill={c[1]} />
+      <polygon points={`${x + w},${y} ${x},${y + d} ${x},${y + d + h} ${x + w},${y + h}`} fill={c[2]} />
+      <polygon points={`${x},${y - d} ${x + w},${y} ${x},${y + d} ${x - w},${y}`} fill={c[0]} />
+    </g>
+  );
+}
+export function BlockTree({ x, y, s }) {
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <ellipse cx="0" cy="2" rx="24" ry="9" fill="#2E2118" opacity=".22" />
-      <path d="M-4 2L-3-24L-14-36M3 2L3-26L14-34M0-20V-44" fill="none" stroke="#54392A" strokeWidth="5" strokeLinecap="round" />
-      <circle cx="-15" cy="-38" r="14" fill="#454F22" />
-      <circle cx="15" cy="-36" r="13" fill="#454F22" />
-      <circle cx="0" cy="-52" r="16" fill="#5F6D32" />
-      <circle cx="-5" cy="-57" r="7" fill="#76853F" />
-      <circle cx="-18" cy="-42" r="5" fill="#5F6D32" />
-      <circle cx="12" cy="-41" r="5" fill="#5F6D32" />
-      <path d="M-15-38L0-52L15-36" fill="none" stroke="#E7D8BC" strokeWidth="1.3" opacity=".85" />
-      <circle cx="-15" cy="-38" r="2.6" fill="#E7D8BC" />
-      <circle cx="0" cy="-52" r="2.6" fill="#E7D8BC" />
-      <circle cx="15" cy="-36" r="2.6" fill="#E7D8BC" />
+      <ellipse cx="0" cy="2" rx="22" ry="8" fill="#2E2118" opacity=".22" />
+      <rect x="-3" y="-18" width="6" height="20" fill="#6B4A33" />
+      <rect x="0" y="-18" width="3" height="20" fill="#54392A" />
+      <LeafCube x={0} y={-34} w={20} c={LEAF} />
+      <LeafCube x={-6} y={-52} w={11} c={LEAF} />
+      <LeafCube x={9} y={-50} w={9} c={LEAF_LIGHT} />
     </g>
   );
 }
