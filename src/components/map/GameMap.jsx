@@ -9,7 +9,7 @@ import { memo, useMemo } from 'react';
 import { CHAPTERS, FLAT, TOTAL } from '../../data/content.js';
 import { AvatarParts } from '../Avatar.jsx';
 import {
-  Boulder, Bush, ChartBoard, Cloud, Cubes, DescentSign, Furrows, Gauge, HayBale, Hut, NeuronTree, Pine, Reeds,
+  Boulder, Bush, ChartBoard, Cloud, Cubes, DescentSign, Furrows, Gauge, HayBale, Hut, BlockTree, Pine, Reeds,
   SigmoidSign, Stones, SummitFlag, Wheat, Bars,
 } from './Scenery.jsx';
 import { Castle, Fountain, Obelisks, Observatory, RuinedArch, SummitShrine, Temple, Watchtower } from './Landmarks.jsx';
@@ -87,11 +87,11 @@ function pickDecor(zone, x, y, k, r) {
   const v = hash(k + 3, r + 11);
   const s = 0.85 + v * 0.45;
   switch (zone) {
-    case 0: return v < 0.72 ? <NeuronTree x={x} y={y} s={s} /> : <Stones x={x} y={y} />;
-    case 1: return v < 0.4 ? <Wheat x={x} y={y} /> : v < 0.7 ? <Furrows x={x} y={y} /> : v < 0.9 ? <HayBale x={x} y={y} /> : <NeuronTree x={x} y={y} s={0.85} />;
+    case 0: return v < 0.72 ? <BlockTree x={x} y={y} s={s} /> : <Stones x={x} y={y} />;
+    case 1: return v < 0.4 ? <Wheat x={x} y={y} /> : v < 0.7 ? <Furrows x={x} y={y} /> : v < 0.9 ? <HayBale x={x} y={y} /> : <BlockTree x={x} y={y} s={0.85} />;
     case 2: return v < 0.6 ? <Boulder x={x} y={y} s={s * 0.8} /> : v < 0.8 ? <DescentSign x={x} y={y} /> : <Stones x={x} y={y} />;
     case 3: return v < 0.45 ? <Reeds x={x} y={y} /> : v < 0.8 ? <Bush x={x} y={y} s={s * 0.9} /> : <SigmoidSign x={x} y={y} />;
-    case 4: return v < 0.4 ? <Pine x={x} y={y} s={s} /> : v < 0.65 ? <Cubes x={x} y={y} v={hash(k, r)} /> : v < 0.85 ? <Hut x={x} y={y} /> : <NeuronTree x={x} y={y} s={0.9} />;
+    case 4: return v < 0.4 ? <Pine x={x} y={y} s={s} /> : v < 0.65 ? <Cubes x={x} y={y} v={hash(k, r)} /> : v < 0.85 ? <Hut x={x} y={y} /> : <BlockTree x={x} y={y} s={0.9} />;
     case 5: return v < 0.35 ? <Bars x={x} y={y} /> : v < 0.6 ? <Gauge x={x} y={y} v={hash(r, k)} /> : v < 0.8 ? <ChartBoard x={x} y={y} /> : <Stones x={x} y={y} />;
     default: return <Pine x={x} y={y} s={s * 0.9} />;
   }

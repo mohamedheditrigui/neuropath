@@ -38,7 +38,7 @@ All content is in `src/data/content.js`.
 
 | # | Chapter | District on the map | Levels | Lab |
 |---|---|---|---|---|
-| 1 | Linear Regression | Scatter Plains (meadow, neuron trees) | 6 | Fit a line with sliders, residuals, MSE, least squares |
+| 1 | Linear Regression | Scatter Plains (meadow, block trees) | 6 | Fit a line with sliders, residuals, MSE, least squares |
 | 2 | Multiple Linear Regression | Terraced Fields (crop strips, terraces) | 5 | Predict flat prices from area, distance and a one-hot "balcony" feature |
 | 3 | Gradient Descent | Descent Canyon (the path runs at the bottom of a ravine) | 6 | Step down a loss valley; 2D contour map; mini-batch and SGD |
 | 4 | Logistic Regression | Sigmoid Springs (an S-shaped river) | 6 | Cut-off, sigmoid, threshold, decision boundary, log loss, training |
