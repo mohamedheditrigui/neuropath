@@ -1,7 +1,7 @@
 /* The central page: the climbing map, the next-level dock and the chapter list. */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CHAPTERS, FLAT, TOTAL, XP_PER_LEVEL, chapterLabel } from '../data/content.js';
+import { CHAPTERS, FLAT, TOTAL, XP_PER_LEVEL, chapterLabel, levelPath } from '../data/content.js';
 import { usePlayer } from '../context/PlayerContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { chapterDone, currentChapter, liveStreak, stateOf } from '../services/game.js';
@@ -17,7 +17,7 @@ function Dock({ shown, xp, streak }) {
   const cur = FLAT[Math.min(shown, TOTAL - 1)];
   const done = chapterDone(shown, cur.ch);
   const total = CHAPTERS[cur.ch].levels.length;
-  const goal = finished ? '/profile' : CHAPTERS[cur.ch].final ? '/project' : `/lesson/${cur.flat}`;
+  const goal = finished ? '/profile' : levelPath(cur.flat);
   return (
     <div className="dock">
       <div className="dock-top">
@@ -55,16 +55,16 @@ function LevelSheet({ flat, progress, onClose }) {
         <>
           <p className="muted"><Icon name="check" /> Completed. Replay it any time.</p>
           <div className="row">
-            <Link className="btn moss" to={final ? '/project' : `/lesson/${flat}`}>Replay {final ? 'project' : 'lesson'}</Link>
+            <Link className="btn moss" to={levelPath(flat)}>Replay {final ? 'step' : 'lesson'}</Link>
             <Link className="btn" to={`/chapter/${lv.ch}`}>Chapter page</Link>
           </div>
         </>
       )}
       {st === 'now' && (
         <>
-          <p className="muted">{final ? 'Train a model from data to prediction, step by step.' : `Your next level. Earn ${XP_PER_LEVEL} XP.`}</p>
+          <p className="muted">{final ? `Project step ${lv.lv + 1} of ${CHAPTERS[lv.ch].levels.length}. Earn ${XP_PER_LEVEL} XP.` : `Your next level. Earn ${XP_PER_LEVEL} XP.`}</p>
           <div className="row">
-            {final ? <Link className="btn primary" to="/project">Start the project</Link> : (
+            {final ? <Link className="btn primary" to={levelPath(flat)}>Start this step</Link> : (
               <>
                 <Link className="btn primary" to={`/lesson/${flat}`}>Start lesson</Link>
                 <Link className="btn" to={`/quiz/${flat}`}>Take the quiz</Link>

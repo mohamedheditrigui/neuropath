@@ -16,6 +16,7 @@ export function newPlayer(name) {
     xpLog: [],
     avatar: { ...DEFAULT_AVATAR },
     quizSkips: 0,
+    project: null, // the final project's saved choices: { cleaned, split, lr, w, b }
   };
 }
 
@@ -70,7 +71,9 @@ export function badges(player) {
     { id: 'streak', title: 'Five-Day Streak', need: 'Learn 5 days running', earned: player.streak >= 5, icon: 'flame' },
     { id: 'ch1', title: 'Curve Tamer', need: 'Clear chapter 1', earned: p >= firstOf(1), icon: 'sliders' },
     { id: 'skip', title: 'Quiz Skipper', need: 'Skip ahead with a quiz', earned: player.quizSkips > 0, icon: 'bolt' },
-    { id: 'knn', title: 'Neighbor', need: 'Clear the KNN chapter', earned: p >= firstOf(4), icon: 'user' },
+    { id: 'sigmoid', title: 'Yes or No', need: 'Clear Logistic Regression', earned: p >= firstOf(4), icon: 'star' },
+    { id: 'knn', title: 'Neighbor', need: 'Clear the KNN chapter', earned: p >= firstOf(5), icon: 'user' },
+    { id: 'judge', title: 'Fair Judge', need: 'Clear Evaluating Models', earned: p >= firstOf(6), icon: 'trophy' },
     { id: 'model', title: 'First Model', need: 'Finish the project', earned: p >= TOTAL, icon: 'model' },
   ];
 }

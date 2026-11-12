@@ -1,7 +1,7 @@
 /* One chapter: its banner and the list of levels, with a filter by status. */
 import { useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { CHAPTERS, FLAT, XP_PER_LEVEL, chapterLabel } from '../data/content.js';
+import { CHAPTERS, FLAT, XP_PER_LEVEL, chapterLabel, levelPath } from '../data/content.js';
 import { usePlayer } from '../context/PlayerContext.jsx';
 import { chapterDone, stateOf } from '../services/game.js';
 import Icon from '../components/Icon.jsx';
@@ -25,7 +25,7 @@ export default function Chapter() {
     .filter((l) => filter === 'all' || (filter === 'done' ? l.st === 'done' : l.st !== 'done'));
 
   const action = (l) => {
-    const go = c.final ? '/project' : `/lesson/${l.flat}`;
+    const go = levelPath(l.flat);
     if (l.st === 'done') return <Link className="btn" to={go}>Replay</Link>;
     if (l.st === 'now') return <Link className="btn primary" to={go}>Start <Icon name="arrow" /></Link>;
     if (c.final) return <span className="muted"><Icon name="lock" /> Locked</span>;

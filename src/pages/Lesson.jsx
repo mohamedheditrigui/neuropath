@@ -1,7 +1,7 @@
 /* A lesson: short explanation, the chapter's interactive lab and the "Complete level" button. */
 import { useCallback, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
-import { CHAPTERS, FLAT, XP_PER_LEVEL } from '../data/content.js';
+import { CHAPTERS, FLAT, XP_PER_LEVEL, levelPath } from '../data/content.js';
 import { usePlayer } from '../context/PlayerContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { stateOf } from '../services/game.js';
@@ -10,10 +10,12 @@ import MultiLab from '../components/labs/MultiLab.jsx';
 import DescentLab from '../components/labs/DescentLab.jsx';
 import KnnLab from '../components/labs/KnnLab.jsx';
 import MetricsLab from '../components/labs/MetricsLab.jsx';
+import LogisticLab from '../components/labs/LogisticLab.jsx';
+import OverfitLab from '../components/labs/OverfitLab.jsx';
 import Icon from '../components/Icon.jsx';
 import { Crumb, Spinner } from '../components/ui.jsx';
 
-const LABS = { line: LineLab, multi: MultiLab, descent: DescentLab, knn: KnnLab, metrics: MetricsLab };
+const LABS = { line: LineLab, multi: MultiLab, descent: DescentLab, logistic: LogisticLab, knn: KnnLab, metrics: MetricsLab, overfit: OverfitLab };
 
 export default function Lesson() {
   const { flat: param } = useParams();
@@ -28,7 +30,7 @@ export default function Lesson() {
   const lv = FLAT[flat];
   if (!lv) return <Navigate to="/roadmap" replace />;
   const c = CHAPTERS[lv.ch];
-  if (c.final) return <Navigate to="/project" replace />;
+  if (c.final) return <Navigate to={levelPath(flat)} replace />;
   const st = stateOf(player.progress, flat);
   if (st === 'locked') {
     return (
@@ -40,14 +42,14 @@ export default function Lesson() {
           <p className="muted">Finish “{FLAT[player.progress].title}” first, or pass this level&apos;s quiz to skip ahead.</p>
           <div className="actions">
             <Link className="btn primary" to={`/quiz/${flat}`}>Take the quiz</Link>
-            <Link className="btn" to={`/lesson/${player.progress}`}>Go to my next level</Link>
+            <Link className="btn" to={levelPath(player.progress)}>Go to my next level</Link>
           </div>
         </section>
       </>
     );
   }
 
-  const Lab = LABS[c.lab];
+  const Lab = LABS[lv.lab || c.lab]; // a level may use another lab than its chapter
   const steps = c.levels.length;
 
   const complete = async () => {
@@ -72,6 +74,7 @@ export default function Lesson() {
         <p className="eyebrow">Chapter {lv.ch + 1}, level {lv.lv + 1}</p>
         <h1 style={{ fontSize: 'clamp(1.8rem,3vw,2.5rem)' }}>{lv.title}</h1>
         <p>{lv.text}</p>
+        {lv.key && <p className="key"><b>Remember:</b> {lv.key}</p>}
       </div>
       {/* key: a fresh lab for every level, so sliders reset */}
       <Lab key={flat} level={lv} onSolved={onSolved} />

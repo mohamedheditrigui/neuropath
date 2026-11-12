@@ -47,7 +47,8 @@ export default function App() {
           <Route path="/chapter/:id" element={<Chapter />} />
           <Route path="/lesson/:flat" element={<Lesson />} />
           <Route path="/quiz/:flat" element={<Quiz />} />
-          <Route path="/project" element={<Project />} />
+          <Route path="/project" element={<Navigate to="/project/1" replace />} />
+          <Route path="/project/:step" element={<Project />} />
           <Route path="/avatar" element={<AvatarPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
