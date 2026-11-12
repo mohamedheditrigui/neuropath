@@ -182,8 +182,12 @@ export default function Roadmap() {
   const nowCh = currentChapter(player.progress);
   const playedToday = player.lastActive === new Date().toISOString().slice(0, 10);
 
+  const summitToast = useRef(false); // shown once per visit, even when React runs effects twice in development
   useEffect(() => {
-    if (shown >= TOTAL && !jump.current) toast('Summit reached. You trained your first model!', { icon: 'star' });
+    if (shown >= TOTAL && !jump.current && !summitToast.current) {
+      summitToast.current = true;
+      toast('Summit reached. You trained your first model!', { icon: 'star' });
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
