@@ -21,11 +21,15 @@ export default function MetricsLab({ level, onSolved }) {
   });
   const accuracy = (tp + tn) / EMAILS.length;
   const precision = tp + fp ? tp / (tp + fp) : 0;
+  const recall = tp / (tp + fn);
+  const f1 = precision + recall ? (2 * precision * recall) / (precision + recall) : 0;
   const metric = level.metric || 'accuracy';
-  const ok = metric === 'both' ? accuracy >= level.goal && precision >= level.goal : (metric === 'precision' ? precision : accuracy) >= level.goal;
+  const value = { accuracy, precision, recall, f1 }[metric];
+  const ok = value >= level.goal;
   useEffect(() => onSolved(ok), [ok, onSolved]);
 
-  const goalText = metric === 'both' ? `accuracy and precision of ${pct(level.goal)} or more` : `${metric} of ${pct(level.goal)} or more`;
+  const goalText = metric === 'f1' ? `an F1 score of ${level.goal} or more` : `${metric} of ${pct(level.goal)}${level.goal < 1 ? ' or more' : ''}`;
+  const extra = metric === 'recall' || metric === 'f1';
 
   return (
     <div className="lesson">
@@ -38,6 +42,8 @@ export default function MetricsLab({ level, onSolved }) {
         <div className="stats" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))' }}>
           <div className="stat"><b className="mono">{pct(accuracy)}</b><span>Accuracy: right answers</span></div>
           <div className="stat"><b className="mono">{tp + fp ? pct(precision) : '–'}</b><span>Precision: flagged that really were spam</span></div>
+          {extra && <div className="stat"><b className="mono">{pct(recall)}</b><span>Recall: spam that was caught</span></div>}
+          {extra && <div className="stat"><b className="mono">{f1.toFixed(2)}</b><span>F1: balance of precision and recall</span></div>}
         </div>
         <div className="panel" style={{ display: 'grid', gap: 10 }}>
           <p><b>Mini-exercise.</b> Find a threshold with {goalText}.</p>

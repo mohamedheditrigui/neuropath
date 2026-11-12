@@ -14,8 +14,12 @@ create table if not exists public.players (
   xp_log      jsonb not null default '[]',  -- [{ date, xp }]
   avatar      jsonb not null default '{"color":"#A84F32","acc":"scarf"}',
   quiz_skips  integer not null default 0,
+  project     jsonb,                        -- saved choices of the final project
   updated_at  timestamptz not null default now()
 );
+
+-- Already created the table before the project column existed? Run this line too:
+alter table public.players add column if not exists project jsonb;
 
 -- Messages sent from the contact form on the Help page.
 create table if not exists public.messages (

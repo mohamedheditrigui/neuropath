@@ -2,7 +2,7 @@
    and passing the quiz of a locked level skips ahead to it. */
 import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
-import { CHAPTERS, FLAT, QUIZ_PASS } from '../data/content.js';
+import { CHAPTERS, FLAT, levelPath, quizPassMark } from '../data/content.js';
 import { usePlayer } from '../context/PlayerContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import Icon from '../components/Icon.jsx';
@@ -28,7 +28,7 @@ export default function Quiz() {
   const lv = FLAT[flat];
   if (!lv) return <Navigate to="/roadmap" replace />;
   const c = CHAPTERS[lv.ch];
-  if (c.final) return <Navigate to="/project" replace />;
+  if (c.final) return <Navigate to={levelPath(flat)} replace />;
   const QUIZ = c.quiz;
   const skip = flat > player.progress;
   const q = QUIZ[i];
@@ -65,7 +65,8 @@ export default function Quiz() {
   const crumb = <Crumb parts={[['Roadmap', '/roadmap'], [c.name, `/chapter/${lv.ch}`], [`Quiz: ${lv.title}`]]} />;
 
   if (finished) {
-    const pass = score >= QUIZ_PASS;
+    const passMark = quizPassMark(QUIZ.length);
+    const pass = score >= passMark;
     const already = flat < player.progress;
     return (
       <>
@@ -77,7 +78,7 @@ export default function Quiz() {
             <p className="muted">
               {pass
                 ? already ? 'Well done. You had already cleared this level, so no extra XP this time.' : 'Well done. The level unlocks and your avatar jumps forward.'
-                : `You need ${QUIZ_PASS} out of ${QUIZ.length} to pass. Review the lesson and try again.`}
+                : `You need ${passMark} out of ${QUIZ.length} to pass. Review the lesson and try again.`}
             </p>
             <div className="actions" style={{ justifyContent: 'center' }}>
               {pass ? (

@@ -1,19 +1,27 @@
-/* Chapter 2: predict flat prices from area and distance with two weights and a bias. */
+/* Chapter 2: predict flat prices from area and distance (and, in the last level, a yes/no balcony feature). */
 import { useEffect, useState } from 'react';
 import Icon from '../Icon.jsx';
 
-// [area m², distance km, real price in thousand TND]; roughly price = 1.5·area − 8·distance + 60
+// [area m², distance km, balcony 0/1, real price in thousand TND]
+// Without balcony: roughly price = 1.5·area − 8·distance + 60
 const FLATS = [
-  [60, 2, 135], [85, 5, 147], [110, 1, 216], [45, 8, 61], [130, 6, 205], [70, 3, 141], [95, 9, 128], [150, 2, 266],
+  [60, 2, 0, 135], [85, 5, 0, 147], [110, 1, 0, 216], [45, 8, 0, 61], [130, 6, 0, 205], [70, 3, 0, 141], [95, 9, 0, 128], [150, 2, 0, 266],
+];
+// With balcony: the same rule plus about 30 when there is a balcony
+const FLATS_BALCONY = [
+  [60, 2, 1, 166], [85, 5, 0, 147], [110, 1, 1, 246], [45, 8, 0, 61], [130, 6, 1, 236], [70, 3, 0, 141], [95, 9, 1, 158], [150, 2, 0, 266],
 ];
 const BAR_MAX = 300;
 
 export default function MultiLab({ level, onSolved }) {
-  const [w1, setW1] = useState(1);
-  const [w2, setW2] = useState(0);
-  const [b, setB] = useState(20);
-  const pred = (area, dist) => w1 * area + w2 * dist + b;
-  const mae = FLATS.reduce((s, [ar, d, p]) => s + Math.abs(pred(ar, d) - p), 0) / FLATS.length;
+  const balconyMode = level.mode === 'balcony';
+  const data = balconyMode ? FLATS_BALCONY : FLATS;
+  const [w1, setW1] = useState(balconyMode ? 1.5 : 1);
+  const [w2, setW2] = useState(balconyMode ? -8 : 0);
+  const [w3, setW3] = useState(0);
+  const [b, setB] = useState(balconyMode ? 60 : 20);
+  const pred = (area, dist, balc) => w1 * area + w2 * dist + w3 * balc + b;
+  const mae = data.reduce((s, [ar, d, bc, p]) => s + Math.abs(pred(ar, d, bc) - p), 0) / data.length;
   const ok = mae < level.goal;
   useEffect(() => onSolved(ok), [ok, onSolved]);
 
@@ -28,10 +36,12 @@ export default function MultiLab({ level, onSolved }) {
     <div className="lesson">
       <section className="lab">
         <div className="formula">
-          price = <em>{w1.toFixed(2)}</em>·area {w2 < 0 ? '−' : '+'} <em>{Math.abs(w2).toFixed(2)}</em>·dist + <em>{b.toFixed(0)}</em>
+          price = <em>{w1.toFixed(2)}</em>·area {w2 < 0 ? '−' : '+'} <em>{Math.abs(w2).toFixed(1)}</em>·dist
+          {balconyMode && <> + <em>{w3.toFixed(0)}</em>·balcony</>} + <em>{b.toFixed(0)}</em>
         </div>
         {slider('w1', 'Weight of area (w₁)', w1, setW1, 0, 3, 0.01)}
         {slider('w2', 'Weight of distance (w₂)', w2, setW2, -20, 10, 0.1)}
+        {balconyMode && slider('w3', 'Weight of balcony (w₃)', w3, setW3, -20, 60, 1)}
         {slider('b0', 'Bias b', b, setB, -50, 150, 1)}
         <div className="panel" style={{ display: 'grid', gap: 10 }}>
           <p><b>Mini-exercise.</b> Bring the average error (MAE) under {level.goal} thousand TND.</p>
@@ -43,7 +53,11 @@ export default function MultiLab({ level, onSolved }) {
       </section>
       <section className="panel" style={{ display: 'grid', gap: 10 }}>
         <h3>Eight flats: real price and your prediction</h3>
-        <div className="legend"><span><i style={{ background: '#5F6D32' }} />Real price</span><span><i style={{ background: '#A84F32' }} />Predicted</span></div>
+        <div className="legend">
+          <span><i style={{ background: '#5F6D32' }} />Real price</span>
+          <span><i style={{ background: '#A84F32' }} />Predicted</span>
+          {balconyMode && <span>★ = has a balcony</span>}
+        </div>
         <svg className="plot" viewBox="0 0 540 330" role="img" aria-label={`Bar chart comparing real and predicted prices, average error ${mae.toFixed(1)}`} fontFamily="'Atkinson Hyperlegible',Verdana,sans-serif">
           {[0, 100, 200, 300].map((v) => (
             <g key={v}>
@@ -51,16 +65,17 @@ export default function MultiLab({ level, onSolved }) {
               <text x="42" y={274 - (v / BAR_MAX) * 240} textAnchor="end" fontSize="12" fill="#5E4C3D">{v}</text>
             </g>
           ))}
-          {FLATS.map(([ar, d, p], i) => {
+          {data.map(([ar, d, bc, p], i) => {
             const x = 62 + i * 58;
             const real = Math.max(0, Math.min(BAR_MAX, p));
-            const guess = Math.max(0, Math.min(BAR_MAX, pred(ar, d)));
+            const guess = Math.max(0, Math.min(BAR_MAX, pred(ar, d, bc)));
             return (
               <g key={i}>
                 <rect x={x} y={270 - (real / BAR_MAX) * 240} width="20" height={(real / BAR_MAX) * 240} fill="#5F6D32" rx="3" />
                 <rect x={x + 22} y={270 - (guess / BAR_MAX) * 240} width="20" height={(guess / BAR_MAX) * 240} fill="#A84F32" rx="3" />
                 <text x={x + 21} y="288" textAnchor="middle" fontSize="11" fill="#2E2118">{ar}m²</text>
                 <text x={x + 21} y="302" textAnchor="middle" fontSize="11" fill="#5E4C3D">{d} km</text>
+                {balconyMode && bc === 1 && <text x={x + 21} y="318" textAnchor="middle" fontSize="13" fill="#97691A">★</text>}
               </g>
             );
           })}

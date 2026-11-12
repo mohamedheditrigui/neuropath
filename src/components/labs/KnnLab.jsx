@@ -13,7 +13,7 @@ const PX = (v) => 30 + v * 46;
 const PY = (v) => 490 - v * 46;
 const K_CHOICES = [1, 3, 5, 7];
 
-export default function KnnLab({ level, onSolved }) {
+function DragLab({ level, onSolved }) {
   const task = level.task;
   const [q, setQ] = useState({ x: 5, y: 5 });
   const [k, setK] = useState(task.k[0] === 1 ? 3 : 1);
@@ -107,4 +107,71 @@ export default function KnnLab({ level, onSolved }) {
       </section>
     </div>
   );
+}
+
+/* ---------- Scaling matters: income (TND) and age live on very different ranges ---------- */
+// [age, yearly income in TND, class]: younger learners are moss, older ones terracotta.
+const PEOPLE = [
+  [22, 30000, 'moss'], [24, 70000, 'moss'], [27, 45000, 'moss'], [29, 60000, 'moss'], [23, 85000, 'moss'], [31, 40000, 'moss'],
+  [50, 51000, 'terracotta'], [55, 53500, 'terracotta'], [45, 49000, 'terracotta'], [58, 75000, 'terracotta'], [48, 30000, 'terracotta'], [52, 62000, 'terracotta'],
+];
+const QUERY = [25, 52000];
+const AGE = [20, 60];
+const INCOME = [0, 100000];
+const SX = (age) => 40 + ((age - AGE[0]) / (AGE[1] - AGE[0])) * 440;
+const SY = (inc) => 300 - ((inc - INCOME[0]) / (INCOME[1] - INCOME[0])) * 260;
+
+function ScaleLab({ level, onSolved }) {
+  const task = level.task;
+  const [scaled, setScaled] = useState(false);
+  const k = task.k[0];
+  const dist = ([a, i]) => {
+    const da = scaled ? (a - QUERY[0]) / (AGE[1] - AGE[0]) : a - QUERY[0];
+    const di = scaled ? (i - QUERY[1]) / (INCOME[1] - INCOME[0]) : i - QUERY[1];
+    return Math.hypot(da, di);
+  };
+  const near = PEOPLE.map((p) => ({ p, d: dist(p) })).sort((x, y) => x.d - y.d).slice(0, k);
+  const votes = { moss: 0, terracotta: 0 };
+  near.forEach((n) => { votes[n.p[2]] += 1; });
+  const predicted = votes.moss > votes.terracotta ? 'moss' : 'terracotta';
+  const ok = predicted === task.cls;
+  useEffect(() => onSolved(ok), [ok, onSolved]);
+
+  return (
+    <div className="lesson">
+      <section className="lab">
+        <div className="formula">distance = √(Δage² + Δincome²)</div>
+        <label className="toggle"><input type="checkbox" checked={scaled} onChange={(e) => setScaled(e.target.checked)} />Scale both features to 0–1 first</label>
+        <div className="panel" style={{ display: 'grid', gap: 8 }}>
+          <p className="mono" style={{ whiteSpace: 'pre-line' }}>{near.map((n, i) => `#${i + 1}: age ${n.p[0]}, ${n.p[1].toLocaleString('en')} TND`).join('\n')}</p>
+          <p className="muted">The new learner is 25 years old and earns 52 000 TND. They are moss, like the other young learners.</p>
+        </div>
+        <div className="panel" style={{ display: 'grid', gap: 10 }}>
+          <p><b>Mini-exercise.</b> With k = {k}, make the model predict <b>{CLASSES[task.cls].label}</b>.</p>
+          <div className="readout">
+            <span>Votes: <b style={{ color: CLASSES.moss.color }}>{votes.moss} moss</b>, <b style={{ color: CLASSES.terracotta.color }}>{votes.terracotta} terracotta</b></span>
+            <span className={`chip ${ok ? 'good' : 'warn'}`}>{ok ? <><Icon name="check" /> Goal reached</> : `Prediction: ${CLASSES[predicted].label}`}</span>
+          </div>
+        </div>
+      </section>
+      <section className="panel" style={{ display: 'grid', gap: 10 }}>
+        <h3>Age and income</h3>
+        <svg className="plot" viewBox="0 0 520 340" role="img" aria-label={`Learners by age and income; the ${k} nearest are linked`} fontFamily="'Atkinson Hyperlegible',Verdana,sans-serif">
+          <rect x="40" y="40" width="440" height="260" fill="#FBF6EB" stroke="#E7D8BC" />
+          {[20, 30, 40, 50, 60].map((a) => <text key={a} x={SX(a)} y="318" textAnchor="middle" fontSize="12" fill="#5E4C3D">{a}</text>)}
+          {[0, 50000, 100000].map((v) => <text key={v} x="36" y={SY(v) + 4} textAnchor="end" fontSize="11" fill="#5E4C3D">{v / 1000}k</text>)}
+          {near.map((n, i) => <line key={i} x1={SX(QUERY[0])} y1={SY(QUERY[1])} x2={SX(n.p[0])} y2={SY(n.p[1])} stroke="#C98F2B" strokeWidth="2.5" />)}
+          {PEOPLE.map(([a, inc, c], i) => <circle key={i} cx={SX(a)} cy={SY(inc)} r="9" fill={CLASSES[c].color} stroke="#FBF6EB" strokeWidth="2" />)}
+          <circle cx={SX(QUERY[0])} cy={SY(QUERY[1])} r="12" fill="#6E6455" stroke="#2E2118" strokeWidth="3" />
+          <text x="260" y="336" textAnchor="middle" fontSize="13" fontWeight="700" fill="#2E2118">Age (years)</text>
+          <text x="40" y="30" fontSize="13" fontWeight="700" fill="#2E2118">Income (TND per year)</text>
+        </svg>
+        <p className="muted">{scaled ? 'Scaled: one year of age and 2 500 TND now weigh about the same, so age counts.' : 'Not scaled: 1 TND of income counts as much as 1 year of age, so income swamps age.'}</p>
+      </section>
+    </div>
+  );
+}
+
+export default function KnnLab(props) {
+  return props.level.mode === 'scale' ? <ScaleLab {...props} /> : <DragLab {...props} />;
 }

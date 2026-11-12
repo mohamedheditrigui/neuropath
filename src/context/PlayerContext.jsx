@@ -43,12 +43,16 @@ export function PlayerProvider({ children }) {
     [user],
   );
 
+  // opts.patch: extra fields saved together with the progress (used by the project steps).
   const finishLevel = useCallback(
-    async (flat, opts) => {
-      const result = completeLevel(player, flat, opts);
+    async (flat, opts = {}) => {
+      const base = opts.patch ? { ...player, ...opts.patch } : player;
+      const result = completeLevel(base, flat, opts);
       if (result.gained > 0) {
         setPendingJump({ from: result.from, to: result.to });
         await update(result.player);
+      } else if (opts.patch) {
+        await update(base);
       }
       return result;
     },

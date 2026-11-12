@@ -13,6 +13,7 @@ const toRow = (p) => ({
   xp_log: p.xpLog,
   avatar: p.avatar,
   quiz_skips: p.quizSkips,
+  project: p.project || null,
   week_xp: weekXp(p),
 });
 const fromRow = (r) => ({
@@ -25,6 +26,7 @@ const fromRow = (r) => ({
   xpLog: r.xp_log || [],
   avatar: r.avatar,
   quizSkips: r.quiz_skips,
+  project: r.project || null,
 });
 const userOf = (u) => u && { id: u.id, email: u.email, name: u.user_metadata?.name || u.email.split('@')[0] };
 const check = ({ data, error }) => {
