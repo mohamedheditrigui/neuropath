@@ -271,7 +271,7 @@ function GameMap({ progress, heroAt, cloudsFor, interactive = true, avatar, hero
       const y = py(n.r);
       if (n.type === 'level') {
         const state = n.flat < progress ? 'done' : n.flat === curFlat && progress < TOTAL ? 'now' : 'locked';
-        list.push({ y: y + 0.02, key: `l${n.flat}`, el: <Tile n={n} state={state} interactive={interactive} onSelect={onSelectLevel} /> });
+        list.push({ y: y + 0.02, key: `l${n.flat}`, clickable: true, el: <Tile n={n} state={state} interactive={interactive} onSelect={onSelectLevel} /> });
       } else {
         list.push({ y: y + 0.02, key: `s${n.r}`, el: <Stairs x={px(n.off)} y={y - 4} /> });
       }
@@ -289,8 +289,9 @@ function GameMap({ progress, heroAt, cloudsFor, interactive = true, avatar, hero
       aria-hidden={interactive ? undefined : 'true'}
       fontFamily="'Bricolage Grotesque','Trebuchet MS',sans-serif"
     >
-      <g>{objects.map((o) => <g key={o.key}>{o.el}</g>)}</g>
-      <g>
+      <g>{objects.map((o) => <g key={o.key} pointerEvents={o.clickable ? undefined : 'none'}>{o.el}</g>)}</g>
+      {/* Clouds and the avatar are decoration: clicks pass through them to the tiles below. */}
+      <g pointerEvents="none">
         {CLOUD_ROWS.map((row) => (
           <g key={row.key} className={`cloud ${row.ch < cloudFrom ? 'gone' : ''}`}>
             <g className={row.drift ? 'drift' : ''}>
@@ -306,7 +307,7 @@ function GameMap({ progress, heroAt, cloudsFor, interactive = true, avatar, hero
           <Gate key={n.r} ci={n.ch} x={W / 2} y={py(n.r) - 6} interactive={interactive} onOpen={onOpenChapter} />
         ))}
       </g>
-      <g id="hero" ref={heroRef} transform={`translate(${hero.x} ${hero.y})`}>
+      <g id="hero" ref={heroRef} pointerEvents="none" transform={`translate(${hero.x} ${hero.y})`}>
         <g className="bob">
           <g transform="scale(1.15)">
             <AvatarParts color={avatar.color} acc={avatar.acc} />
