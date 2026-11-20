@@ -1,3 +1,4 @@
+/* Landing page: hero with a live preview of the map, why it works, how it works, the chapter list and a call to action. */
 import { Link } from 'react-router-dom';
 import { CHAPTERS } from '../data/content.js';
 import { usePlayer } from '../context/PlayerContext.jsx';

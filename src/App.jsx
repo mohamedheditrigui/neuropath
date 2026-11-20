@@ -1,3 +1,5 @@
+/* All routes of the site: public pages, guest-only pages (log in, sign up) and pages behind login.
+   Every page except the landing page is lazy-loaded to keep the first download small. */
 import { Suspense, lazy } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { usePlayer } from './context/PlayerContext.jsx';

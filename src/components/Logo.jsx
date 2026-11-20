@@ -1,3 +1,4 @@
+/* The NeuroPath logo (SVG mark + name), used as a link in the headers and the app menu. */
 import { Link } from 'react-router-dom';
 
 export function LogoMark() {

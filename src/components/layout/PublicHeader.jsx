@@ -1,3 +1,4 @@
+/* Top bar of the public pages: logo, Program and About links, and log in / sign up (or "Open my map" when signed in). */
 import { Link } from 'react-router-dom';
 import { usePlayer } from '../../context/PlayerContext.jsx';
 import Logo from '../Logo.jsx';
