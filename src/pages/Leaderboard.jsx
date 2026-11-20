@@ -8,7 +8,10 @@ import Icon from '../components/Icon.jsx';
 import Loading from '../components/layout/Loading.jsx';
 import { PageTitle } from '../components/ui.jsx';
 
-const PERIODS = [['week', 'This week'], ['all', 'All time']];
+const PERIODS = [
+  ['week', 'This week'],
+  ['all', 'All time'],
+];
 
 export default function Leaderboard() {
   const { user, player } = usePlayer();
@@ -31,7 +34,14 @@ export default function Leaderboard() {
   const ranked = useMemo(() => {
     if (!rows) return [];
     // Always show the current player with their latest numbers.
-    const me = { id: user.id, name: player.name, xp: player.xp, weekXp: weekXp(player), avatar: player.avatar, me: true };
+    const me = {
+      id: user.id,
+      name: player.name,
+      xp: player.xp,
+      weekXp: weekXp(player),
+      avatar: player.avatar,
+      me: true,
+    };
     const list = [...rows.filter((r) => r.id !== user.id), me];
     const score = (r) => (period === 'week' ? r.weekXp : r.xp);
     return list.sort((a, b) => score(b) - score(a)).map((r, i) => ({ ...r, rank: i + 1, score: score(r) }));
@@ -43,21 +53,35 @@ export default function Leaderboard() {
 
   return (
     <>
-      <PageTitle title="Leaderboard" sub={hasSamples ? 'Ranked by XP. Names marked “sample” are demo learners.' : 'Ranked by XP.'} />
-      {error && <p className="form-error" role="alert">Could not load the leaderboard: {error}</p>}
+      <PageTitle
+        title="Leaderboard"
+        sub={hasSamples ? 'Ranked by XP. Names marked “sample” are demo learners.' : 'Ranked by XP.'}
+      />
+      {error && (
+        <p className="form-error" role="alert">
+          Could not load the leaderboard: {error}
+        </p>
+      )}
       {!rows && !error && <Loading label="Loading the ranking…" />}
       {rows && (
         <>
           <div className="toolbar">
             <div className="tabs" role="group" aria-label="Period">
               {PERIODS.map(([key, label]) => (
-                <button key={key} type="button" aria-pressed={period === key} onClick={() => setPeriod(key)}>{label}</button>
+                <button key={key} type="button" aria-pressed={period === key} onClick={() => setPeriod(key)}>
+                  {label}
+                </button>
               ))}
             </div>
             <label className="search">
               <Icon name="search" />
               <span className="sr-only">Search a learner</span>
-              <input type="search" placeholder="Search a learner" value={query} onChange={(e) => setQuery(e.target.value)} />
+              <input
+                type="search"
+                placeholder="Search a learner"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
             </label>
           </div>
           {podium.length === 3 && (
@@ -77,12 +101,22 @@ export default function Leaderboard() {
           )}
           <section className="panel scroll-x">
             <table className="data">
-              <thead><tr><th>Rank</th><th>Learner</th><th>{period === 'week' ? 'XP this week' : 'Total XP'}</th></tr></thead>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Learner</th>
+                  <th>{period === 'week' ? 'XP this week' : 'Total XP'}</th>
+                </tr>
+              </thead>
               <tbody>
                 {shown.map((r) => (
                   <tr key={r.id} className={r.me ? 'me' : ''}>
                     <td className="mono">{r.rank}</td>
-                    <td>{r.name}{r.me && ' (you)'}{r.sample && <span className="muted"> · sample</span>}</td>
+                    <td>
+                      {r.name}
+                      {r.me && ' (you)'}
+                      {r.sample && <span className="muted"> · sample</span>}
+                    </td>
                     <td className="mono">{r.score}</td>
                   </tr>
                 ))}

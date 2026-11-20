@@ -1,10 +1,11 @@
 /* Signed-in layout: dark bark menu on the left (bottom bar on phones) and the page on the right. */
-import { useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { usePlayer } from '../../context/PlayerContext.jsx';
 import Avatar from '../Avatar.jsx';
 import Icon from '../Icon.jsx';
 import Logo from '../Logo.jsx';
+import Loading, { PageSkeleton } from './Loading.jsx';
 
 const NAV = [
   ['/roadmap', 'Roadmap', 'map'],
@@ -39,7 +40,12 @@ export default function AppShell({ children, raw = false }) {
       <nav className="rail" aria-label="Main menu">
         <Logo to="/roadmap" />
         {NAV.map(([to, label, icon]) => (
-          <NavLink key={to} to={to} className={`nav ${active === to ? 'on' : ''}`} aria-current={active === to ? 'page' : undefined}>
+          <NavLink
+            key={to}
+            to={to}
+            className={`nav ${active === to ? 'on' : ''}`}
+            aria-current={active === to ? 'page' : undefined}
+          >
             <Icon name={icon} />
             <span>{label}</span>
           </NavLink>
@@ -50,16 +56,18 @@ export default function AppShell({ children, raw = false }) {
           <div>
             <b>{player.name || user.name}</b>
             <br />
-            <button type="button" className="linkish" onClick={onLogOut}>Log out</button>
+            <button type="button" className="linkish" onClick={onLogOut}>
+              Log out
+            </button>
           </div>
         </div>
       </nav>
       <main className="main" id="main" ref={main}>
         {raw ? (
-          children
+          <Suspense fallback={<Loading />}>{children}</Suspense>
         ) : (
-          <div className="content">
-            {children}
+          <div className="content page-in" key={pathname}>
+            <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
             <footer className="app-foot">
               <span>NeuroPath, a SUP&apos;COM web project.</span>
               <Link to="/help">About and help</Link>

@@ -51,7 +51,14 @@ export const Wheat = ({ x, y }) => (
 export const Furrows = ({ x, y }) => (
   <g>
     {[-2, -1, 0, 1, 2].map((i) => (
-      <path key={i} d={`M${x - 34 + i * 12} ${y + i * 7}L${x + 2 + i * 12} ${y - 21 + i * 7}`} stroke="#97691A" strokeWidth="3" opacity=".5" strokeLinecap="round" />
+      <path
+        key={i}
+        d={`M${x - 34 + i * 12} ${y + i * 7}L${x + 2 + i * 12} ${y - 21 + i * 7}`}
+        stroke="#97691A"
+        strokeWidth="3"
+        opacity=".5"
+        strokeLinecap="round"
+      />
     ))}
   </g>
 );
@@ -98,7 +105,9 @@ export const Pine = ({ x, y, s }) => (
 );
 
 export function Cloud({ x, y, s }) {
-  const c = (dx, dy, rx, ry, f, key) => <ellipse key={key} cx={x + dx * s} cy={y + dy * s} rx={rx * s} ry={ry * s} fill={f} />;
+  const c = (dx, dy, rx, ry, f, key) => (
+    <ellipse key={key} cx={x + dx * s} cy={y + dy * s} rx={rx * s} ry={ry * s} fill={f} />
+  );
   return (
     <g>
       {c(0, 14, 96, 26, '#D8C9AE', 1)}
@@ -143,7 +152,12 @@ export const Reeds = ({ x, y }) => (
   <g>
     {[-6, -2, 3, 7].map((d, i) => (
       <g key={i}>
-        <path d={`M${x + d} ${y + 4}q${i % 2 ? 2 : -2} -12 ${i % 2 ? 1 : -1} -22`} stroke="#5F6D32" strokeWidth="2" fill="none" />
+        <path
+          d={`M${x + d} ${y + 4}q${i % 2 ? 2 : -2} -12 ${i % 2 ? 1 : -1} -22`}
+          stroke="#5F6D32"
+          strokeWidth="2"
+          fill="none"
+        />
         <ellipse cx={x + d + (i % 2 ? 1 : -1)} cy={y - 18} rx="2" ry="5" fill="#6B4A33" />
       </g>
     ))}
@@ -191,7 +205,12 @@ export const Gauge = ({ x, y, v }) => {
       <path d="M-22-6a22 22 0 0 1 44 0z" fill="#FBF6EB" stroke="#5E5445" strokeWidth="3" />
       <path d="M-22-6a22 22 0 0 1 11-19" fill="none" stroke="#A84F32" strokeWidth="5" />
       <path d="M11-25a22 22 0 0 1 11 19" fill="none" stroke="#5F6D32" strokeWidth="5" />
-      <path d={`M0-6L${Math.cos(a) * 16} ${-6 - Math.sin(a) * 16}`} stroke="#2E2118" strokeWidth="3" strokeLinecap="round" />
+      <path
+        d={`M0-6L${Math.cos(a) * 16} ${-6 - Math.sin(a) * 16}`}
+        stroke="#2E2118"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
     </g>
   );
 };

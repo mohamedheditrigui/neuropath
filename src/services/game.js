@@ -61,7 +61,13 @@ export function completeLevel(player, flat, { viaQuiz = false } = {}) {
     xpLog: log,
     quizSkips: player.quizSkips + (viaQuiz && skipped ? 1 : 0),
   };
-  return { player: next, gained, from, to, newChapter: FLAT[Math.min(to, TOTAL - 1)].ch > FLAT[Math.min(from, TOTAL - 1)].ch };
+  return {
+    player: next,
+    gained,
+    from,
+    to,
+    newChapter: FLAT[Math.min(to, TOTAL - 1)].ch > FLAT[Math.min(from, TOTAL - 1)].ch,
+  };
 }
 
 export function badges(player) {

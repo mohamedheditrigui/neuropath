@@ -39,7 +39,9 @@ function save(db) {
 async function hashPassword(password, salt) {
   const data = new TextEncoder().encode(`${salt}:${password}`);
   const buf = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 const publicUser = (u) => ({ id: u.id, email: u.email, name: u.name });
 
@@ -57,7 +59,13 @@ export const mockApi = {
     const key = email.trim().toLowerCase();
     if (db.users[key]) return fail('An account with this email already exists. Log in instead.');
     const salt = crypto.randomUUID();
-    const user = { id: crypto.randomUUID(), email: key, name: name.trim(), salt, hash: await hashPassword(password, salt) };
+    const user = {
+      id: crypto.randomUUID(),
+      email: key,
+      name: name.trim(),
+      salt,
+      hash: await hashPassword(password, salt),
+    };
     db.users[key] = user;
     db.players[user.id] = newPlayer(user.name);
     db.session = user.id;
@@ -96,8 +104,21 @@ export const mockApi = {
 
   async getLeaderboard() {
     const db = load();
-    const samples = SAMPLE_LEARNERS.map(([name, xp, week, color, acc], i) => ({ id: `sample-${i}`, name, xp, weekXp: week, avatar: { color, acc }, sample: true }));
-    const real = Object.entries(db.players).map(([id, p]) => ({ id, name: p.name, xp: p.xp, weekXp: weekXp(p), avatar: p.avatar }));
+    const samples = SAMPLE_LEARNERS.map(([name, xp, week, color, acc], i) => ({
+      id: `sample-${i}`,
+      name,
+      xp,
+      weekXp: week,
+      avatar: { color, acc },
+      sample: true,
+    }));
+    const real = Object.entries(db.players).map(([id, p]) => ({
+      id,
+      name: p.name,
+      xp: p.xp,
+      weekXp: weekXp(p),
+      avatar: p.avatar,
+    }));
     return wait([...samples, ...real]);
   },
 

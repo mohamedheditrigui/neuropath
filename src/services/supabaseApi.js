@@ -53,7 +53,8 @@ export function makeSupabaseApi(url, anonKey) {
 
     async logIn({ email, password }) {
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
-      if (error) throw new Error(error.message === 'Invalid login credentials' ? 'Wrong email or password.' : error.message);
+      if (error)
+        throw new Error(error.message === 'Invalid login credentials' ? 'Wrong email or password.' : error.message);
       return userOf(data.user);
     },
 
@@ -78,7 +79,9 @@ export function makeSupabaseApi(url, anonKey) {
     },
 
     async getLeaderboard() {
-      const rows = check(await sb.from('players').select('id, name, xp, week_xp, avatar').order('xp', { ascending: false }).limit(50));
+      const rows = check(
+        await sb.from('players').select('id, name, xp, week_xp, avatar').order('xp', { ascending: false }).limit(50),
+      );
       return rows.map((r) => ({ id: r.id, name: r.name, xp: r.xp, weekXp: r.week_xp, avatar: r.avatar }));
     },
 

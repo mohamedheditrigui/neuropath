@@ -1,0 +1,7 @@
+dist
+node_modules
+package-lock.json
+supabase
+# Kept compact on purpose: one level / one CSS rule per line reads better than wrapped.
+src/data/content.js
+src/styles/global.css

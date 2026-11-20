@@ -61,20 +61,51 @@ function CurvePlot({ f, showTest }) {
     return `${PX(x)},${PY(clipY(f(x)))}`;
   }).join(' ');
   return (
-    <svg className="plot" viewBox="0 0 540 320" role="img" aria-label="Training and test points with the fitted polynomial" fontFamily="'Atkinson Hyperlegible',Verdana,sans-serif">
-      <defs><clipPath id="ofclip"><rect x="40" y="10" width="460" height="290" /></clipPath></defs>
+    <svg
+      className="plot"
+      viewBox="0 0 540 320"
+      role="img"
+      aria-label="Training and test points with the fitted polynomial"
+      fontFamily="'Atkinson Hyperlegible',Verdana,sans-serif"
+    >
+      <defs>
+        <clipPath id="ofclip">
+          <rect x="40" y="10" width="460" height="290" />
+        </clipPath>
+      </defs>
       <rect x="40" y="10" width="460" height="290" fill="#FBF6EB" />
       <line x1="40" x2="500" y1={PY(0)} y2={PY(0)} stroke="#E7D8BC" />
       <polyline points={pts} fill="none" stroke="#C98F2B" strokeWidth="3.5" clipPath="url(#ofclip)" />
-      {TRAIN.map(([x, y], i) => <circle key={`a${i}`} cx={PX(x)} cy={PY(y)} r="7" fill="#5F6D32" stroke="#FBF6EB" strokeWidth="2" />)}
-      {showTest && TEST.map(([x, y], i) => <rect key={`b${i}`} x={PX(x) - 6} y={PY(y) - 6} width="12" height="12" fill="#A84F32" stroke="#FBF6EB" strokeWidth="2" />)}
+      {TRAIN.map(([x, y], i) => (
+        <circle key={`a${i}`} cx={PX(x)} cy={PY(y)} r="7" fill="#5F6D32" stroke="#FBF6EB" strokeWidth="2" />
+      ))}
+      {showTest &&
+        TEST.map(([x, y], i) => (
+          <rect
+            key={`b${i}`}
+            x={PX(x) - 6}
+            y={PY(y) - 6}
+            width="12"
+            height="12"
+            fill="#A84F32"
+            stroke="#FBF6EB"
+            strokeWidth="2"
+          />
+        ))}
     </svg>
   );
 }
 
-function FitMode({ level, onSolved }) {
+function FitMode({ onSolved }) {
   const [degree, setDegree] = useState(8);
-  const errors = useMemo(() => DEGREES.map((d) => { const f = polyfit(TRAIN, d); return { d, train: mse(f, TRAIN), test: mse(f, TEST) }; }), []);
+  const errors = useMemo(
+    () =>
+      DEGREES.map((d) => {
+        const f = polyfit(TRAIN, d);
+        return { d, train: mse(f, TRAIN), test: mse(f, TEST) };
+      }),
+    [],
+  );
   const bestTest = Math.min(...errors.map((e) => e.test));
   const cur = errors[degree - 1];
   const f = useMemo(() => polyfit(TRAIN, degree), [degree]);
@@ -84,25 +115,70 @@ function FitMode({ level, onSolved }) {
   return (
     <div className="lesson">
       <section className="lab">
-        <div className="formula">y = c₀ + c₁x + … + c<sub>{degree}</sub>x<sup>{degree}</sup></div>
+        <div className="formula">
+          y = c₀ + c₁x + … + c<sub>{degree}</sub>x<sup>{degree}</sup>
+        </div>
         <div className="slider">
-          <label htmlFor="deg">Polynomial degree <span className="mono">{degree}</span></label>
-          <input id="deg" type="range" min="1" max="8" step="1" value={degree} onChange={(e) => setDegree(+e.target.value)} />
+          <label htmlFor="deg">
+            Polynomial degree <span className="mono">{degree}</span>
+          </label>
+          <input
+            id="deg"
+            type="range"
+            min="1"
+            max="8"
+            step="1"
+            value={degree}
+            onChange={(e) => setDegree(+e.target.value)}
+          />
         </div>
         <div className="stats" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))' }}>
-          <div className="stat"><b className="mono">{cur.train.toFixed(3)}</b><span>Training error (MSE)</span></div>
-          <div className="stat"><b className="mono">{cur.test > 99 ? '> 99' : cur.test.toFixed(3)}</b><span>Test error (MSE)</span></div>
+          <div className="stat">
+            <b className="mono">{cur.train.toFixed(3)}</b>
+            <span>Training error (MSE)</span>
+          </div>
+          <div className="stat">
+            <b className="mono">{cur.test > 99 ? '> 99' : cur.test.toFixed(3)}</b>
+            <span>Test error (MSE)</span>
+          </div>
         </div>
         <div className="panel" style={{ display: 'grid', gap: 10 }}>
-          <p><b>Mini-exercise.</b> Find the degree with the lowest test error.</p>
-          <span className={`chip ${ok ? 'good' : 'warn'}`} style={{ justifySelf: 'start' }}>{ok ? <><Icon name="check" /> Goal reached</> : cur.train < 0.02 ? 'Tiny training error, big test error: overfitting' : 'Not yet'}</span>
+          <p>
+            <b>Mini-exercise.</b> Find the degree with the lowest test error.
+          </p>
+          <span className={`chip ${ok ? 'good' : 'warn'}`} style={{ justifySelf: 'start' }}>
+            {ok ? (
+              <>
+                <Icon name="check" /> Goal reached
+              </>
+            ) : cur.train < 0.02 ? (
+              'Tiny training error, big test error: overfitting'
+            ) : (
+              'Not yet'
+            )}
+          </span>
         </div>
       </section>
       <section className="panel" style={{ display: 'grid', gap: 10 }}>
         <h3>Fit and errors by degree</h3>
         <CurvePlot f={f} showTest />
-        <div className="legend"><span><i style={{ background: '#5F6D32' }} />Training points</span><span><i style={{ background: '#A84F32', borderRadius: 2 }} />Test points</span></div>
-        <svg className="plot" viewBox="0 0 540 150" role="img" aria-label="Training and test error for each degree" fontFamily="'Atkinson Hyperlegible',Verdana,sans-serif">
+        <div className="legend">
+          <span>
+            <i style={{ background: '#5F6D32' }} />
+            Training points
+          </span>
+          <span>
+            <i style={{ background: '#A84F32', borderRadius: 2 }} />
+            Test points
+          </span>
+        </div>
+        <svg
+          className="plot"
+          viewBox="0 0 540 150"
+          role="img"
+          aria-label="Training and test error for each degree"
+          fontFamily="'Atkinson Hyperlegible',Verdana,sans-serif"
+        >
           {errors.map((e, i) => {
             const x = 40 + i * 60;
             const h1 = (Math.min(e.train, maxE) / maxE) * 100;
@@ -111,21 +187,39 @@ function FitMode({ level, onSolved }) {
               <g key={e.d} opacity={e.d === degree ? 1 : 0.55}>
                 <rect x={x} y={115 - h1} width="20" height={h1} fill="#5F6D32" rx="2" />
                 <rect x={x + 22} y={115 - h2} width="20" height={h2} fill="#A84F32" rx="2" />
-                <text x={x + 21} y="134" textAnchor="middle" fontSize="12" fontWeight={e.d === degree ? 700 : 400} fill="#2E2118">{e.d}</text>
+                <text
+                  x={x + 21}
+                  y="134"
+                  textAnchor="middle"
+                  fontSize="12"
+                  fontWeight={e.d === degree ? 700 : 400}
+                  fill="#2E2118"
+                >
+                  {e.d}
+                </text>
               </g>
             );
           })}
           <line x1="34" x2="520" y1="115" y2="115" stroke="#2E2118" strokeWidth="2" />
-          <text x="280" y="149" textAnchor="middle" fontSize="12" fill="#5E4C3D">Degree (green = training error, red = test error)</text>
+          <text x="280" y="149" textAnchor="middle" fontSize="12" fill="#5E4C3D">
+            Degree (green = training error, red = test error)
+          </text>
         </svg>
       </section>
     </div>
   );
 }
 
-function CvMode({ level, onSolved }) {
+function CvMode({ onSolved }) {
   const [degree, setDegree] = useState(1);
-  const table = useMemo(() => DEGREES.slice(0, 6).map((d) => { const s = cvScores(d); return { d, s, mean: s.reduce((a, b) => a + b, 0) / FOLDS }; }), []);
+  const table = useMemo(
+    () =>
+      DEGREES.slice(0, 6).map((d) => {
+        const s = cvScores(d);
+        return { d, s, mean: s.reduce((a, b) => a + b, 0) / FOLDS };
+      }),
+    [],
+  );
   const best = Math.min(...table.map((t) => t.mean));
   const cur = table[degree - 1];
   const ok = cur.mean <= best * 1.1;
@@ -135,33 +229,89 @@ function CvMode({ level, onSolved }) {
   return (
     <div className="lesson">
       <section className="lab">
-        <div className="formula">score = average of <em>{FOLDS}</em> folds</div>
+        <div className="formula">
+          score = average of <em>{FOLDS}</em> folds
+        </div>
         <div className="slider">
-          <label htmlFor="cvdeg">Polynomial degree <span className="mono">{degree}</span></label>
-          <input id="cvdeg" type="range" min="1" max="6" step="1" value={degree} onChange={(e) => setDegree(+e.target.value)} />
+          <label htmlFor="cvdeg">
+            Polynomial degree <span className="mono">{degree}</span>
+          </label>
+          <input
+            id="cvdeg"
+            type="range"
+            min="1"
+            max="6"
+            step="1"
+            value={degree}
+            onChange={(e) => setDegree(+e.target.value)}
+          />
         </div>
         <div className="panel" style={{ display: 'grid', gap: 10 }}>
-          <p><b>Mini-exercise.</b> Choose the degree with the lowest average cross-validation error.</p>
-          <div className="readout"><span>Average error <span className="mse">{cur.mean.toFixed(3)}</span></span><span className={`chip ${ok ? 'good' : 'warn'}`}>{ok ? <><Icon name="check" /> Goal reached</> : 'Not yet'}</span></div>
+          <p>
+            <b>Mini-exercise.</b> Choose the degree with the lowest average cross-validation error.
+          </p>
+          <div className="readout">
+            <span>
+              Average error <span className="mse">{cur.mean.toFixed(3)}</span>
+            </span>
+            <span className={`chip ${ok ? 'good' : 'warn'}`}>
+              {ok ? (
+                <>
+                  <Icon name="check" /> Goal reached
+                </>
+              ) : (
+                'Not yet'
+              )}
+            </span>
+          </div>
         </div>
         <CurvePlot f={f} />
       </section>
       <section className="panel" style={{ display: 'grid', gap: 10 }}>
         <h3>Five folds, five test scores</h3>
-        <p className="muted">All 20 points are cut into 5 folds of 4. Each fold is the test set once; the model trains on the other 16.</p>
-        <svg className="plot" viewBox="0 0 540 220" role="img" aria-label={`Cross-validation error per fold for degree ${degree}`} fontFamily="'Atkinson Hyperlegible',Verdana,sans-serif">
+        <p className="muted">
+          All 20 points are cut into 5 folds of 4. Each fold is the test set once; the model trains on the other 16.
+        </p>
+        <svg
+          className="plot"
+          viewBox="0 0 540 220"
+          role="img"
+          aria-label={`Cross-validation error per fold for degree ${degree}`}
+          fontFamily="'Atkinson Hyperlegible',Verdana,sans-serif"
+        >
           {cur.s.map((s, k) => {
             const h = (Math.min(s, maxS) / maxS) * 150;
             return (
               <g key={k}>
                 <rect x={50 + k * 90} y={180 - h} width="60" height={h} fill="#C98F2B" rx="4" />
-                <text x={80 + k * 90} y="198" textAnchor="middle" fontSize="12" fill="#2E2118">Fold {k + 1}</text>
-                <text x={80 + k * 90} y={174 - h} textAnchor="middle" fontSize="11" fill="#5E4C3D">{s > 9 ? '> 9' : s.toFixed(2)}</text>
+                <text x={80 + k * 90} y="198" textAnchor="middle" fontSize="12" fill="#2E2118">
+                  Fold {k + 1}
+                </text>
+                <text x={80 + k * 90} y={174 - h} textAnchor="middle" fontSize="11" fill="#5E4C3D">
+                  {s > 9 ? '> 9' : s.toFixed(2)}
+                </text>
               </g>
             );
           })}
-          <line x1="40" x2="500" y1={180 - (Math.min(cur.mean, maxS) / maxS) * 150} y2={180 - (Math.min(cur.mean, maxS) / maxS) * 150} stroke="#A84F32" strokeWidth="2.5" strokeDasharray="7 5" />
-          <text x="500" y={172 - (Math.min(cur.mean, maxS) / maxS) * 150} textAnchor="end" fontSize="12" fontWeight="700" fill="#7E3820">average</text>
+          <line
+            x1="40"
+            x2="500"
+            y1={180 - (Math.min(cur.mean, maxS) / maxS) * 150}
+            y2={180 - (Math.min(cur.mean, maxS) / maxS) * 150}
+            stroke="#A84F32"
+            strokeWidth="2.5"
+            strokeDasharray="7 5"
+          />
+          <text
+            x="500"
+            y={172 - (Math.min(cur.mean, maxS) / maxS) * 150}
+            textAnchor="end"
+            fontSize="12"
+            fontWeight="700"
+            fill="#7E3820"
+          >
+            average
+          </text>
           <line x1="40" x2="500" y1="180" y2="180" stroke="#2E2118" strokeWidth="2" />
         </svg>
       </section>

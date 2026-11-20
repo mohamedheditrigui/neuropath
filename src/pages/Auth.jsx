@@ -80,18 +80,43 @@ export default function Auth({ kind }) {
         <form onSubmit={onSubmit} noValidate>
           <div>
             <h2>{up ? 'Create your account' : 'Welcome back'}</h2>
-            <p className="muted" style={{ marginTop: 6 }}>{up ? 'Your progress follows you on any device.' : 'Pick up where you left off.'}</p>
+            <p className="muted" style={{ marginTop: 6 }}>
+              {up ? 'Your progress follows you on any device.' : 'Pick up where you left off.'}
+            </p>
           </div>
-          {serverError && <p className="form-error" role="alert">{serverError}</p>}
+          {serverError && (
+            <p className="form-error" role="alert">
+              {serverError}
+            </p>
+          )}
           {up && field('name', 'Name', { autoComplete: 'given-name', placeholder: 'Your first name' })}
           {field('email', 'Email', { type: 'email', autoComplete: 'email', placeholder: 'you@school.tn' })}
-          {field('password', 'Password', { type: 'password', autoComplete: up ? 'new-password' : 'current-password', placeholder: 'At least 8 characters' })}
-          {up && field('confirm', 'Confirm password', { type: 'password', autoComplete: 'new-password', placeholder: 'Type it again' })}
+          {field('password', 'Password', {
+            type: 'password',
+            autoComplete: up ? 'new-password' : 'current-password',
+            placeholder: 'At least 8 characters',
+          })}
+          {up &&
+            field('confirm', 'Confirm password', {
+              type: 'password',
+              autoComplete: 'new-password',
+              placeholder: 'Type it again',
+            })}
           <button className="btn primary big wide" type="submit" disabled={busy}>
             {busy && <Spinner />}
             {up ? 'Create account' : 'Log in'}
           </button>
-          <p>{up ? <>Already climbing? <Link to="/login">Log in</Link></> : <>New here? <Link to="/signup">Create an account</Link></>}</p>
+          <p>
+            {up ? (
+              <>
+                Already climbing? <Link to="/login">Log in</Link>
+              </>
+            ) : (
+              <>
+                New here? <Link to="/signup">Create an account</Link>
+              </>
+            )}
+          </p>
           {mode === 'mock' && <p className="note">Demo mode: your account is stored in this browser only.</p>}
         </form>
       </div>
