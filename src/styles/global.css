@@ -444,3 +444,38 @@ fieldset { margin: 0; min-width: 0; }
 .lb-note.warn { background: #F3D9C7; }
 .lb-note.go { background: #DDE3BE; }
 .lb-recap { display: grid; gap: 8px; max-width: 72ch; }
+
+/* ---------- Chapter 1 activities ---------- */
+.sort-card { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tabs button.right[aria-pressed="true"] { background: #DDE3BE; color: var(--moss-d); }
+.tabs button.wrong[aria-pressed="true"] { background: #F3D9C7; color: var(--terracotta-d); }
+.tabs button[disabled] { opacity: .5; cursor: not-allowed; }
+.num-check { font-weight: 700; }
+.num-check .num-row { display: flex; align-items: center; gap: 8px; }
+.num-check input { max-width: 120px; font: 600 1rem var(--mono); }
+.num-check input.bad { border-color: var(--terracotta); }
+.num-check .icon { color: var(--moss); }
+.num-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+.step-box { display: grid; gap: 10px; }
+.step-box legend { padding: 0 6px; }
+.mini-table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+.mini-table th, .mini-table td { padding: .35em .5em; text-align: right; border-bottom: 1px solid #E7D8BC; }
+.mini-table th:first-child { text-align: left; }
+.onehot .cell { min-width: 2.4em; padding: .3em .5em; border: 1.5px solid #CDBB97; border-radius: 6px; background: var(--paper); font: 700 .95rem var(--mono); cursor: pointer; }
+.onehot .cell.on { background: var(--moss); border-color: var(--moss-d); color: var(--paper); }
+.onehot td, .onehot th { text-align: center; }
+.sort-card .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.email-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.email { text-align: center; padding: .6em .2em; border-radius: var(--r-s); font: 700 .8rem var(--mono); color: var(--paper); }
+.email.train { background: var(--moss); }
+.email.test { background: var(--bark); }
+.confusion-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 560px) { .confusion-inputs { grid-template-columns: minmax(0, 1fr); } }
+/* Answer buttons wrap on narrow screens instead of overflowing. */
+.tabs.choice { display: flex; flex-wrap: wrap; max-width: 100%; }
+.sort-card > * { min-width: 0; }
+.table-scroll { overflow-x: auto; max-width: 100%; }
+@media (max-width: 560px) {
+  .onehot th, .onehot td { padding: .3em .2em; font-size: .82rem; }
+  .onehot .cell { min-width: 2em; padding: .25em .35em; }
+}
