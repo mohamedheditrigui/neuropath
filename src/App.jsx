@@ -13,6 +13,7 @@ import AvatarPage from './pages/AvatarPage.jsx';
 import Profile from './pages/Profile.jsx';
 import Leaderboard from './pages/Leaderboard.jsx';
 import Help from './pages/Help.jsx';
+import Program from './pages/Program.jsx';
 import NotFound from './pages/NotFound.jsx';
 
 /* Pages behind login: send visitors to /login and come back afterwards. */
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/signup" element={<Auth kind="signup" />} />
       </Route>
       <Route path="/help" element={<Help />} />
+      <Route path="/program" element={<Program />} />
       <Route element={<RequireAuth />}>
         <Route path="/roadmap" element={<AppShell raw><Roadmap /></AppShell>} />
         <Route element={<AppShell><Outlet /></AppShell>}>

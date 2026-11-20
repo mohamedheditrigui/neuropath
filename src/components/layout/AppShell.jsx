@@ -8,6 +8,7 @@ import Logo from '../Logo.jsx';
 
 const NAV = [
   ['/roadmap', 'Roadmap', 'map'],
+  ['/program', 'Program', 'list'],
   ['/profile', 'Profile', 'user'],
   ['/avatar', 'Avatar', 'palette'],
   ['/leaderboard', 'Leaderboard', 'trophy'],

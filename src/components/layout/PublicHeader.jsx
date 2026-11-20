@@ -8,13 +8,24 @@ export default function PublicHeader() {
     <header className="pub-top">
       <Logo to="/" />
       <nav aria-label="Site">
-        <Link className="link" to="/help">About</Link>
+        <Link className="link" to="/program">
+          Program
+        </Link>
+        <Link className="link" to="/help">
+          About
+        </Link>
         {user ? (
-          <Link className="btn primary" to="/roadmap">Open my map</Link>
+          <Link className="btn primary" to="/roadmap">
+            Open my map
+          </Link>
         ) : (
           <>
-            <Link className="link" to="/login">Log in</Link>
-            <Link className="btn primary" to="/signup">Sign up</Link>
+            <Link className="link" to="/login">
+              Log in
+            </Link>
+            <Link className="btn primary" to="/signup">
+              Sign up
+            </Link>
           </>
         )}
       </nav>
