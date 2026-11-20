@@ -1,3 +1,4 @@
+/* 404 page for unknown addresses, with a link back to the map (or the home page for visitors). */
 import { Link } from 'react-router-dom';
 import { usePlayer } from '../context/PlayerContext.jsx';
 

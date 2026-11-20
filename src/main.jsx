@@ -1,3 +1,4 @@
+/* Entry point: mounts the React app with the router, toast notifications and the player state. */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
