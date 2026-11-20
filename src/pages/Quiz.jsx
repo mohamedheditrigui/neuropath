@@ -1,15 +1,37 @@
-/* Three questions, one at a time, with instant feedback. 2 of 3 validates the level,
+/* Three questions about this level, one at a time, with instant feedback. 2 of 3 validates the level,
    and passing the quiz of a locked level skips ahead to it. */
 import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { CHAPTERS, FLAT, levelPath, quizPassMark } from '../data/content.js';
+import { lessonOf } from '../data/lessons/index.js';
 import { usePlayer } from '../context/PlayerContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import Icon from '../components/Icon.jsx';
 import { Bar, Crumb, Spinner } from '../components/ui.jsx';
 
+/* Options are shown in a shuffled order, so the right answer is not always in the same place.
+   The order is derived from the question text: stable between renders and visits. */
+function shuffled(question) {
+  let seed = [...question.q].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
+  const random = () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 2 ** 32;
+  };
+  const order = question.o.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return { ...question, o: order.map((i) => question.o[i]), a: order.indexOf(question.a) };
+}
+
+// Keyed by level so the question number and score start again for every level.
 export default function Quiz() {
-  const { flat: param } = useParams();
+  const { flat } = useParams();
+  return <QuizPage key={flat} param={flat} />;
+}
+
+function QuizPage({ param }) {
   const { player, finishLevel } = usePlayer();
   const toast = useToast();
   const navigate = useNavigate();
@@ -29,7 +51,7 @@ export default function Quiz() {
   if (!lv) return <Navigate to="/roadmap" replace />;
   const c = CHAPTERS[lv.ch];
   if (c.final) return <Navigate to={levelPath(flat)} replace />;
-  const QUIZ = c.quiz;
+  const QUIZ = (lessonOf(lv.ch, lv.lv)?.quiz || c.quiz).map(shuffled); // the level's own questions, else the chapter's
   const skip = flat > player.progress;
   const q = QUIZ[i];
 
@@ -62,7 +84,13 @@ export default function Quiz() {
     }
   };
 
-  const crumb = <Crumb parts={[['Roadmap', '/roadmap'], [c.name, `/chapter/${lv.ch}`], [`Quiz: ${lv.title}`]]} />;
+  // The page title is for screen readers; the question itself is the visible heading.
+  const crumb = (
+    <>
+      <Crumb parts={[['Roadmap', '/roadmap'], [c.name, `/chapter/${lv.ch}`], [`Quiz: ${lv.title}`]]} />
+      <h1 className="sr-only">Quiz: {lv.title}</h1>
+    </>
+  );
 
   if (finished) {
     const passMark = quizPassMark(QUIZ.length);
@@ -72,21 +100,36 @@ export default function Quiz() {
       <>
         {crumb}
         <div className="quiz">
-          <div className="panel" style={{ display: 'grid', gap: 14, justifyItems: 'center', textAlign: 'center', padding: 32 }}>
+          <div
+            className="panel"
+            style={{ display: 'grid', gap: 14, justifyItems: 'center', textAlign: 'center', padding: 32 }}
+          >
             <p className="eyebrow">{pass ? 'Quiz passed' : 'Quiz not passed'}</p>
-            <div className="score-big">{score}/{QUIZ.length}</div>
+            <div className="score-big">
+              {score}/{QUIZ.length}
+            </div>
             <p className="muted">
               {pass
-                ? already ? 'Well done. You had already cleared this level, so no extra XP this time.' : 'Well done. The level unlocks and your avatar jumps forward.'
+                ? already
+                  ? 'Well done. You had already cleared this level, so no extra XP this time.'
+                  : 'Well done. The level unlocks and your avatar jumps forward.'
                 : `You need ${passMark} out of ${QUIZ.length} to pass. Review the lesson and try again.`}
             </p>
             <div className="actions" style={{ justifyContent: 'center' }}>
               {pass ? (
-                <button className="btn moss big" type="button" onClick={claim} disabled={busy}>{busy && <Spinner />}Back to the Roadmap</button>
+                <button className="btn moss big" type="button" onClick={claim} disabled={busy}>
+                  {busy && <Spinner />}Back to the Roadmap
+                </button>
               ) : (
                 <>
-                  {!skip && <Link className="btn primary big" to={`/lesson/${flat}`}>Review the lesson</Link>}
-                  <button className="btn big" type="button" onClick={restart}>Try again</button>
+                  {!skip && (
+                    <Link className="btn primary big" to={`/lesson/${flat}`}>
+                      Review the lesson
+                    </Link>
+                  )}
+                  <button className="btn big" type="button" onClick={restart}>
+                    Try again
+                  </button>
                 </>
               )}
             </div>
@@ -102,8 +145,13 @@ export default function Quiz() {
       <div className="quiz">
         <div className="quiz-top">
           <Bar value={i} max={QUIZ.length} tone="moss" label={`Question ${i + 1} of ${QUIZ.length}`} />
-          <span className="mono">{i + 1}/{QUIZ.length}</span>
-          <span className="chip good" aria-label="Correct answers"><Icon name="check" /><span className="mono">{score}</span></span>
+          <span className="mono">
+            {i + 1}/{QUIZ.length}
+          </span>
+          <span className="chip good" aria-label="Correct answers">
+            <Icon name="check" />
+            <span className="mono">{score}</span>
+          </span>
         </div>
         {skip && <p className="note">Skip-ahead quiz: pass it to unlock “{lv.title}”.</p>}
         <p className="eyebrow">{c.name}</p>
@@ -112,8 +160,16 @@ export default function Quiz() {
           {q.o.map((t, n) => {
             const cls = picked === null ? '' : n === q.a ? 'right' : n === picked ? 'wrong' : '';
             return (
-              <button key={t} className={`opt ${cls}`} type="button" disabled={picked !== null} onClick={() => choose(n)}>
-                <span className="mark">{cls === 'right' ? <Icon name="check" /> : cls === 'wrong' ? <Icon name="x" /> : 'ABCD'[n]}</span>
+              <button
+                key={t}
+                className={`opt ${cls}`}
+                type="button"
+                disabled={picked !== null}
+                onClick={() => choose(n)}
+              >
+                <span className="mark">
+                  {cls === 'right' ? <Icon name="check" /> : cls === 'wrong' ? <Icon name="x" /> : 'ABCD'[n]}
+                </span>
                 {t}
               </button>
             );
@@ -124,7 +180,9 @@ export default function Quiz() {
             <>
               <div className={`feedback ${picked === q.a ? 'good' : 'bad'}`}>
                 <Icon name={picked === q.a ? 'check' : 'x'} />
-                <span><b>{picked === q.a ? 'Correct.' : 'Not quite.'}</b> {q.why}</span>
+                <span>
+                  <b>{picked === q.a ? 'Correct.' : 'Not quite.'}</b> {q.why}
+                </span>
               </div>
               <button className="btn primary big" type="button" onClick={next} ref={nextBtn}>
                 {i + 1 < QUIZ.length ? 'Next question' : 'See my score'} <Icon name="arrow" />

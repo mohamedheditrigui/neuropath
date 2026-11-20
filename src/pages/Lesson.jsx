@@ -1,7 +1,9 @@
-/* A lesson: short explanation, the chapter's interactive lab and the "Complete level" button. */
+/* A lesson: the course text for this level, the chapter's interactive lab, a recap and the "Complete level" button. */
 import { useCallback, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { CHAPTERS, FLAT, XP_PER_LEVEL, levelPath } from '../data/content.js';
+import { lessonOf } from '../data/lessons/index.js';
+import LessonBody, { Recap } from '../components/LessonBody.jsx';
 import { usePlayer } from '../context/PlayerContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { stateOf } from '../services/game.js';
@@ -15,10 +17,23 @@ import OverfitLab from '../components/labs/OverfitLab.jsx';
 import Icon from '../components/Icon.jsx';
 import { Crumb, Spinner } from '../components/ui.jsx';
 
-const LABS = { line: LineLab, multi: MultiLab, descent: DescentLab, logistic: LogisticLab, knn: KnnLab, metrics: MetricsLab, overfit: OverfitLab };
+const LABS = {
+  line: LineLab,
+  multi: MultiLab,
+  descent: DescentLab,
+  logistic: LogisticLab,
+  knn: KnnLab,
+  metrics: MetricsLab,
+  overfit: OverfitLab,
+};
 
+// A new level = a fresh page: the exercise state ("solved") must not carry over from the previous level.
 export default function Lesson() {
-  const { flat: param } = useParams();
+  const { flat } = useParams();
+  return <LessonPage key={flat} param={flat} />;
+}
+
+function LessonPage({ param }) {
   const { player, finishLevel } = usePlayer();
   const toast = useToast();
   const navigate = useNavigate();
@@ -39,10 +54,16 @@ export default function Lesson() {
         <section className="panel" style={{ display: 'grid', gap: 12, justifyItems: 'start' }}>
           <p className="eyebrow">Locked level</p>
           <h2>{lv.title}</h2>
-          <p className="muted">Finish “{FLAT[player.progress].title}” first, or pass this level&apos;s quiz to skip ahead.</p>
+          <p className="muted">
+            Finish “{FLAT[player.progress].title}” first, or pass this level&apos;s quiz to skip ahead.
+          </p>
           <div className="actions">
-            <Link className="btn primary" to={`/quiz/${flat}`}>Take the quiz</Link>
-            <Link className="btn" to={levelPath(player.progress)}>Go to my next level</Link>
+            <Link className="btn primary" to={`/quiz/${flat}`}>
+              Take the quiz
+            </Link>
+            <Link className="btn" to={levelPath(player.progress)}>
+              Go to my next level
+            </Link>
           </div>
         </section>
       </>
@@ -50,6 +71,7 @@ export default function Lesson() {
   }
 
   const Lab = LABS[lv.lab || c.lab]; // a level may use another lab than its chapter
+  const course = lessonOf(lv.ch, lv.lv);
   const steps = c.levels.length;
 
   const complete = async () => {
@@ -68,30 +90,62 @@ export default function Lesson() {
     <>
       <Crumb parts={[['Roadmap', '/roadmap'], [c.name, `/chapter/${lv.ch}`], [lv.title]]} />
       <div className="seg" aria-label={`Level ${lv.lv + 1} of ${steps}`}>
-        {c.levels.map((_, i) => <i key={i} className={i <= lv.lv ? 'on' : ''} />)}
+        {c.levels.map((_, i) => (
+          <i key={i} className={i <= lv.lv ? 'on' : ''} />
+        ))}
       </div>
-      <div style={{ display: 'grid', gap: 10, maxWidth: '72ch' }}>
-        <p className="eyebrow">Chapter {lv.ch + 1}, level {lv.lv + 1}</p>
+      <div style={{ display: 'grid', gap: 12, maxWidth: '72ch' }}>
+        <p className="eyebrow">
+          Chapter {lv.ch + 1}, level {lv.lv + 1}
+        </p>
         <h1 style={{ fontSize: 'clamp(1.8rem,3vw,2.5rem)' }}>{lv.title}</h1>
-        <p>{lv.text}</p>
-        {lv.key && <p className="key"><b>Remember:</b> {lv.key}</p>}
+        {course ? (
+          <>
+            <p className="muted lb-meta">
+              About {course.minutes} min of reading, then a hands-on exercise. <a href="#lab">Jump to the exercise</a>
+            </p>
+            <LessonBody blocks={course.blocks} />
+          </>
+        ) : (
+          <p>{lv.text}</p>
+        )}
+        {lv.key && (
+          <p className="key">
+            <b>Remember:</b> {lv.key}
+          </p>
+        )}
       </div>
-      {/* key: a fresh lab for every level, so sliders reset */}
-      <Lab key={flat} level={lv} onSolved={onSolved} />
+      <h2 id="lab" className="lb-h" style={{ scrollMarginTop: 16 }}>
+        Try it
+      </h2>
+      {course && <p style={{ maxWidth: '72ch' }}>{lv.text}</p>}
+      {/* The whole page is keyed by level (see Lesson above), so the lab and its sliders reset too. */}
+      <Lab level={lv} onSolved={onSolved} />
+      {course && <Recap items={course.recap} />}
       <div className="actions">
         {st === 'done' ? (
-          <Link className="btn moss big" to="/roadmap"><Icon name="check" /> Completed: back to the map</Link>
+          <Link className="btn moss big" to="/roadmap">
+            <Icon name="check" /> Completed: back to the map
+          </Link>
         ) : (
           <button className="btn moss big" type="button" disabled={!solved || busy} onClick={complete}>
             {busy && <Spinner />}Complete level (+{XP_PER_LEVEL} XP)
           </button>
         )}
-        <Link className="btn big" to={`/quiz/${flat}`}>Take the quiz</Link>
+        <Link className="btn big" to={`/quiz/${flat}`}>
+          Take the quiz
+        </Link>
         {flat + 1 < FLAT.length && FLAT[flat + 1].ch === lv.ch && st === 'done' && (
-          <Link className="btn big" to={`/lesson/${flat + 1}`}>Next level <Icon name="arrow" /></Link>
+          <Link className="btn big" to={`/lesson/${flat + 1}`}>
+            Next level <Icon name="arrow" />
+          </Link>
         )}
       </div>
-      {st !== 'done' && !solved && <p className="muted">Reach the exercise goal to unlock the Complete button, or prove you know it with the quiz.</p>}
+      {st !== 'done' && !solved && (
+        <p className="muted">
+          Reach the exercise goal to unlock the Complete button, or prove you know it with the quiz.
+        </p>
+      )}
     </>
   );
 }
