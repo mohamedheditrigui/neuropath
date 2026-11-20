@@ -29,13 +29,23 @@ export default function AvatarPage() {
     <>
       <PageTitle title="Avatar Customization" sub="This is who jumps from tile to tile on your map." />
       <div className="two">
-        <div className="avatar-stage"><Avatar avatar={cfg} /></div>
+        <div className="avatar-stage">
+          <Avatar avatar={cfg} />
+        </div>
         <section className="panel" style={{ display: 'grid', gap: 16 }}>
           <div style={{ display: 'grid', gap: 10 }}>
             <h3>Color</h3>
             <div className="swatches">
               {AVATAR_COLORS.map(([c, name]) => (
-                <button key={c} type="button" className={`swatch ${c === cfg.color ? 'on' : ''}`} style={{ background: c }} aria-label={name} aria-pressed={c === cfg.color} onClick={() => setCfg({ ...cfg, color: c })} />
+                <button
+                  key={c}
+                  type="button"
+                  className={`swatch ${c === cfg.color ? 'on' : ''}`}
+                  style={{ background: c }}
+                  aria-label={name}
+                  aria-pressed={c === cfg.color}
+                  onClick={() => setCfg({ ...cfg, color: c })}
+                />
               ))}
             </div>
           </div>
@@ -45,18 +55,33 @@ export default function AvatarPage() {
               {ACCESSORIES.map(([a, name, need]) => {
                 const locked = player.xp < need;
                 return (
-                  <button key={a} type="button" className={a === cfg.acc ? 'on' : ''} disabled={locked} aria-pressed={a === cfg.acc} onClick={() => setCfg({ ...cfg, acc: a })}>
+                  <button
+                    key={a}
+                    type="button"
+                    className={a === cfg.acc ? 'on' : ''}
+                    disabled={locked}
+                    aria-pressed={a === cfg.acc}
+                    onClick={() => setCfg({ ...cfg, acc: a })}
+                  >
                     <Avatar avatar={{ color: cfg.color, acc: a }} />
                     <span>{name}</span>
-                    {locked && <small><Icon name="lock" /> {need} XP</small>}
+                    {locked && (
+                      <small>
+                        <Icon name="lock" /> {need} XP
+                      </small>
+                    )}
                   </button>
                 );
               })}
             </div>
           </div>
           <div className="actions">
-            <button className="btn primary big" type="button" onClick={save} disabled={!changed || busy}>{busy && <Spinner />}Save avatar</button>
-            <Link className="btn big" to="/roadmap">Back to the map</Link>
+            <button className="btn primary big" type="button" onClick={save} disabled={!changed || busy}>
+              {busy && <Spinner />}Save avatar
+            </button>
+            <Link className="btn big" to="/roadmap">
+              Back to the map
+            </Link>
           </div>
         </section>
       </div>

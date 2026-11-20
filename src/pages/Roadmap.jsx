@@ -21,14 +21,26 @@ function Dock({ shown, xp, streak }) {
   return (
     <div className="dock">
       <div className="dock-top">
-        <span className="count xp"><Icon name="bolt" /><span className="mono">{xp}</span>&nbsp;XP</span>
-        <span className="count"><Icon name="flame" /><span className="mono">{streak}</span>&nbsp;{streak === 1 ? 'day' : 'days'}</span>
+        <span className="count xp">
+          <Icon name="bolt" />
+          <span className="mono">{xp}</span>&nbsp;XP
+        </span>
+        <span className="count">
+          <Icon name="flame" />
+          <span className="mono">{streak}</span>&nbsp;{streak === 1 ? 'day' : 'days'}
+        </span>
         <Bar value={done} max={total} label={`${done} of ${total} levels done in this chapter`} />
-        <span className="mono" style={{ whiteSpace: 'nowrap' }}>{done}/{total}</span>
+        <span className="mono" style={{ whiteSpace: 'nowrap' }}>
+          {done}/{total}
+        </span>
       </div>
       <div className="dock-btns">
-        <Link className="btn" to={`/chapter/${cur.ch}`} aria-label="Open the chapter's level list"><Icon name="list" /></Link>
-        <Link className="btn moss big" to={goal}><span className="label">{finished ? 'See your progress' : `Continue: ${cur.title}`}</span></Link>
+        <Link className="btn" to={`/chapter/${cur.ch}`} aria-label="Open the chapter's level list">
+          <Icon name="list" />
+        </Link>
+        <Link className="btn moss big" to={goal}>
+          <span className="label">{finished ? 'See your progress' : `Continue: ${cur.title}`}</span>
+        </Link>
       </div>
     </div>
   );
@@ -48,26 +60,46 @@ function LevelSheet({ flat, progress, onClose }) {
   }, [onClose]);
   return (
     <div className="sheet" role="dialog" aria-label={lv.title}>
-      <button className="x" type="button" aria-label="Close" onClick={onClose} ref={closeBtn}><Icon name="x" /></button>
+      <button className="x" type="button" aria-label="Close" onClick={onClose} ref={closeBtn}>
+        <Icon name="x" />
+      </button>
       <p className="eyebrow">{final ? 'Final chapter' : `Chapter ${lv.ch + 1}, level ${lv.lv + 1}`}</p>
       <h3>{lv.title}</h3>
       {st === 'done' && (
         <>
-          <p className="muted"><Icon name="check" /> Completed. Replay it any time.</p>
+          <p className="muted">
+            <Icon name="check" /> Completed. Replay it any time.
+          </p>
           <div className="row">
-            <Link className="btn moss" to={levelPath(flat)}>Replay {final ? 'step' : 'lesson'}</Link>
-            <Link className="btn" to={`/chapter/${lv.ch}`}>Chapter page</Link>
+            <Link className="btn moss" to={levelPath(flat)}>
+              Replay {final ? 'step' : 'lesson'}
+            </Link>
+            <Link className="btn" to={`/chapter/${lv.ch}`}>
+              Chapter page
+            </Link>
           </div>
         </>
       )}
       {st === 'now' && (
         <>
-          <p className="muted">{final ? `Project step ${lv.lv + 1} of ${CHAPTERS[lv.ch].levels.length}. Earn ${XP_PER_LEVEL} XP.` : `Your next level. Earn ${XP_PER_LEVEL} XP.`}</p>
+          <p className="muted">
+            {final
+              ? `Project step ${lv.lv + 1} of ${CHAPTERS[lv.ch].levels.length}. Earn ${XP_PER_LEVEL} XP.`
+              : `Your next level. Earn ${XP_PER_LEVEL} XP.`}
+          </p>
           <div className="row">
-            {final ? <Link className="btn primary" to={levelPath(flat)}>Start this step</Link> : (
+            {final ? (
+              <Link className="btn primary" to={levelPath(flat)}>
+                Start this step
+              </Link>
+            ) : (
               <>
-                <Link className="btn primary" to={`/lesson/${flat}`}>Start lesson</Link>
-                <Link className="btn" to={`/quiz/${flat}`}>Take the quiz</Link>
+                <Link className="btn primary" to={`/lesson/${flat}`}>
+                  Start lesson
+                </Link>
+                <Link className="btn" to={`/quiz/${flat}`}>
+                  Take the quiz
+                </Link>
               </>
             )}
           </div>
@@ -75,10 +107,19 @@ function LevelSheet({ flat, progress, onClose }) {
       )}
       {st === 'locked' && (
         <>
-          <p className="muted"><Icon name="lock" /> Locked. Finish “{prev}” first{final ? '.' : ", or pass this level's quiz to skip ahead."}</p>
+          <p className="muted">
+            <Icon name="lock" /> Locked. Finish “{prev}” first
+            {final ? '.' : ", or pass this level's quiz to skip ahead."}
+          </p>
           <div className="row">
-            {!final && <Link className="btn primary" to={`/quiz/${flat}`}>Take the quiz</Link>}
-            <button className="btn" type="button" onClick={onClose}>Not now</button>
+            {!final && (
+              <Link className="btn primary" to={`/quiz/${flat}`}>
+                Take the quiz
+              </Link>
+            )}
+            <button className="btn" type="button" onClick={onClose}>
+              Not now
+            </button>
           </div>
         </>
       )}
@@ -96,12 +137,21 @@ function UnlockCard({ ci, onClose }) {
         <svg width="90" height="90" viewBox="0 0 90 90" aria-hidden="true">
           <path d="M45 6l39 39-39 39L6 45z" fill="#C98F2B" />
           <path d="M45 18l27 27-27 27-27-27z" fill="#FBF6EB" />
-          <path d="M34 45l8 8 15-16" fill="none" stroke="#5F6D32" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M34 45l8 8 15-16"
+            fill="none"
+            stroke="#5F6D32"
+            strokeWidth="7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
         <p className="eyebrow">{chapterLabel(ci)} unlocked</p>
         <h2>{c.name}</h2>
         <p className="muted">The clouds lift over {c.zone}.</p>
-        <button className="btn primary" type="button" onClick={onClose} ref={ok}>Keep climbing</button>
+        <button className="btn primary" type="button" onClick={onClose} ref={ok}>
+          Keep climbing
+        </button>
       </div>
     </div>
   );
@@ -113,7 +163,9 @@ export default function Roadmap() {
   const navigate = useNavigate();
   const jump = useRef(pendingJump); // read once: the animation plays a single time
   const [view, setView] = useState(() =>
-    jump.current ? { progress: jump.current.from, heroAt: jump.current.from, cloudsFor: jump.current.from } : { progress: player.progress },
+    jump.current
+      ? { progress: jump.current.from, heroAt: jump.current.from, cloudsFor: jump.current.from }
+      : { progress: player.progress },
   );
   const [sheet, setSheet] = useState(null);
   const [unlocked, setUnlocked] = useState(null);
@@ -196,9 +248,13 @@ export default function Roadmap() {
         <header className="road-head">
           <div>
             <h1>Roadmap</h1>
-            <div className="where">{chapterLabel(cur.ch)}: {curChapter.name}</div>
+            <div className="where">
+              {chapterLabel(cur.ch)}: {curChapter.name}
+            </div>
           </div>
-          <Link className="btn" to={`/chapter/${cur.ch}`}>Chapter page</Link>
+          <Link className="btn" to={`/chapter/${cur.ch}`}>
+            Chapter page
+          </Link>
         </header>
         <div className="scene" ref={scene}>
           <GameMap
@@ -223,11 +279,21 @@ export default function Roadmap() {
           const st = done === total ? 'done' : nowCh === i ? 'now' : '';
           return (
             <Link key={ch.id} className={`ch-row ${st}`} to={`/chapter/${i}`}>
-              <span className="gem">{st === 'done' ? <Icon name="check" /> : ch.final ? <Icon name="star" /> : i + 1}</span>
+              <span className="gem">
+                {st === 'done' ? <Icon name="check" /> : ch.final ? <Icon name="star" /> : i + 1}
+              </span>
               <span>
                 <b>{ch.name}</b>
-                <small>{done} of {total} levels</small>
-                <Bar value={done} max={total} tone="moss" label={`${ch.name}: ${done} of ${total}`} style={{ display: 'block' }} />
+                <small>
+                  {done} of {total} levels
+                </small>
+                <Bar
+                  value={done}
+                  max={total}
+                  tone="moss"
+                  label={`${ch.name}: ${done} of ${total}`}
+                  style={{ display: 'block' }}
+                />
               </span>
             </Link>
           );
@@ -235,7 +301,11 @@ export default function Roadmap() {
         <div className="panel" style={{ display: 'grid', gap: 8 }}>
           <h3>Today&apos;s goal</h3>
           <p className="muted">
-            {playedToday ? `Done for today. Your streak is ${streak} ${streak === 1 ? 'day' : 'days'}.` : streak > 0 ? `Finish one level to keep your ${streak}-day streak.` : 'Finish one level to start a streak.'}
+            {playedToday
+              ? `Done for today. Your streak is ${streak} ${streak === 1 ? 'day' : 'days'}.`
+              : streak > 0
+                ? `Finish one level to keep your ${streak}-day streak.`
+                : 'Finish one level to start a streak.'}
           </p>
           <Bar value={playedToday ? 1 : 0} max={1} label="Today's goal" />
         </div>

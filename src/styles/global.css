@@ -407,3 +407,23 @@ fieldset { margin: 0; min-width: 0; }
   .prog-levels .gem { width: 30px; height: 30px; }
   .prog-levels .btn { grid-column: 2 / -1; justify-self: start; }
 }
+
+/* ---------- Loading skeleton and page transition ---------- */
+.skeleton { display: grid; gap: 16px; }
+.sk { border-radius: var(--r); background: linear-gradient(90deg, var(--sand) 0%, #F0E4CC 50%, var(--sand) 100%); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
+.sk-banner { height: 170px; }
+.sk-line { height: 18px; border-radius: 6px; }
+.sk-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.sk-card { height: 120px; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.page-in { animation: page-in .22s ease-out; }
+/* Slide only: if animations are paused (background tab), the content is still fully visible. */
+@keyframes page-in { from { transform: translateY(6px); } }
+@media (max-width: 760px) { .sk-grid { grid-template-columns: minmax(0, 1fr); } }
+.prog-h { font: inherit; letter-spacing: normal; }
+.prog-cta-title { font-size: 1.3rem; }
+/* Contrast (WCAG AA): darken every coloured banner by 25% bark so small light text reads at 5.5:1 or more,
+   whatever chapter colour is underneath. */
+.ch-banner { background-image: linear-gradient(rgba(46, 33, 24, .25), rgba(46, 33, 24, .25)); }
+.ch-banner .eyebrow { color: var(--parchment); }
+.prog-levels .gem, .prog-num { background-image: linear-gradient(rgba(46, 33, 24, .25), rgba(46, 33, 24, .25)); }

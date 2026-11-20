@@ -1,20 +1,24 @@
+import { Suspense, lazy } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { usePlayer } from './context/PlayerContext.jsx';
 import AppShell from './components/layout/AppShell.jsx';
 import Loading from './components/layout/Loading.jsx';
 import Landing from './pages/Landing.jsx';
-import Auth from './pages/Auth.jsx';
-import Roadmap from './pages/Roadmap.jsx';
-import Chapter from './pages/Chapter.jsx';
-import Lesson from './pages/Lesson.jsx';
-import Quiz from './pages/Quiz.jsx';
-import Project from './pages/Project.jsx';
-import AvatarPage from './pages/AvatarPage.jsx';
-import Profile from './pages/Profile.jsx';
-import Leaderboard from './pages/Leaderboard.jsx';
-import Help from './pages/Help.jsx';
-import Program from './pages/Program.jsx';
-import NotFound from './pages/NotFound.jsx';
+
+/* Code splitting: the landing page ships in the main bundle (first thing a visitor sees);
+   every other page is its own file, downloaded the first time it is opened. */
+const Auth = lazy(() => import('./pages/Auth.jsx'));
+const Roadmap = lazy(() => import('./pages/Roadmap.jsx'));
+const Chapter = lazy(() => import('./pages/Chapter.jsx'));
+const Lesson = lazy(() => import('./pages/Lesson.jsx'));
+const Quiz = lazy(() => import('./pages/Quiz.jsx'));
+const Project = lazy(() => import('./pages/Project.jsx'));
+const AvatarPage = lazy(() => import('./pages/AvatarPage.jsx'));
+const Profile = lazy(() => import('./pages/Profile.jsx'));
+const Leaderboard = lazy(() => import('./pages/Leaderboard.jsx'));
+const Help = lazy(() => import('./pages/Help.jsx'));
+const Program = lazy(() => import('./pages/Program.jsx'));
+const NotFound = lazy(() => import('./pages/NotFound.jsx'));
 
 /* Pages behind login: send visitors to /login and come back afterwards. */
 function RequireAuth() {
@@ -35,28 +39,43 @@ function GuestOnly() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route element={<GuestOnly />}>
-        <Route path="/login" element={<Auth kind="login" />} />
-        <Route path="/signup" element={<Auth kind="signup" />} />
-      </Route>
-      <Route path="/help" element={<Help />} />
-      <Route path="/program" element={<Program />} />
-      <Route element={<RequireAuth />}>
-        <Route path="/roadmap" element={<AppShell raw><Roadmap /></AppShell>} />
-        <Route element={<AppShell><Outlet /></AppShell>}>
-          <Route path="/chapter/:id" element={<Chapter />} />
-          <Route path="/lesson/:flat" element={<Lesson />} />
-          <Route path="/quiz/:flat" element={<Quiz />} />
-          <Route path="/project" element={<Navigate to="/project/1" replace />} />
-          <Route path="/project/:step" element={<Project />} />
-          <Route path="/avatar" element={<AvatarPage />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
+    <Suspense fallback={<Loading label="Loading…" />}>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route element={<GuestOnly />}>
+          <Route path="/login" element={<Auth kind="login" />} />
+          <Route path="/signup" element={<Auth kind="signup" />} />
         </Route>
-      </Route>
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="/help" element={<Help />} />
+        <Route path="/program" element={<Program />} />
+        <Route element={<RequireAuth />}>
+          <Route
+            path="/roadmap"
+            element={
+              <AppShell raw>
+                <Roadmap />
+              </AppShell>
+            }
+          />
+          <Route
+            element={
+              <AppShell>
+                <Outlet />
+              </AppShell>
+            }
+          >
+            <Route path="/chapter/:id" element={<Chapter />} />
+            <Route path="/lesson/:flat" element={<Lesson />} />
+            <Route path="/quiz/:flat" element={<Quiz />} />
+            <Route path="/project" element={<Navigate to="/project/1" replace />} />
+            <Route path="/project/:step" element={<Project />} />
+            <Route path="/avatar" element={<AvatarPage />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+          </Route>
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 }

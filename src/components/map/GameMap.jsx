@@ -9,11 +9,43 @@ import { memo, useMemo } from 'react';
 import { CHAPTERS, FLAT, TOTAL } from '../../data/content.js';
 import { AvatarParts } from '../Avatar.jsx';
 import {
-  Boulder, Bush, ChartBoard, Cloud, Cubes, DescentSign, Furrows, Gauge, HayBale, Hut, BlockTree, Pine, Reeds,
-  SigmoidSign, Stones, SummitFlag, Wheat, Bars,
+  Boulder,
+  Bush,
+  ChartBoard,
+  Cloud,
+  Cubes,
+  DescentSign,
+  Furrows,
+  Gauge,
+  HayBale,
+  Hut,
+  BlockTree,
+  Pine,
+  Reeds,
+  SigmoidSign,
+  Stones,
+  SummitFlag,
+  Wheat,
+  Bars,
 } from './Scenery.jsx';
 import { Castle, Fountain, Obelisks, Observatory, RuinedArch, SummitShrine, Temple, Watchtower } from './Landmarks.jsx';
-import { BOT_PAD, DEPTH, HH, HW, MAP_H, NODES, ROWS, TOP_PAD, W, dia, hash, heroPos, levelNode, px, py } from './geometry.js';
+import {
+  BOT_PAD,
+  DEPTH,
+  HH,
+  HW,
+  MAP_H,
+  NODES,
+  ROWS,
+  TOP_PAD,
+  W,
+  dia,
+  hash,
+  heroPos,
+  levelNode,
+  px,
+  py,
+} from './geometry.js';
 
 /* Ground colours per district: [light, dark, cliff left face, cliff right face]. */
 const GROUND = [
@@ -87,13 +119,56 @@ function pickDecor(zone, x, y, k, r) {
   const v = hash(k + 3, r + 11);
   const s = 0.85 + v * 0.45;
   switch (zone) {
-    case 0: return v < 0.72 ? <BlockTree x={x} y={y} s={s} /> : <Stones x={x} y={y} />;
-    case 1: return v < 0.4 ? <Wheat x={x} y={y} /> : v < 0.7 ? <Furrows x={x} y={y} /> : v < 0.9 ? <HayBale x={x} y={y} /> : <BlockTree x={x} y={y} s={0.85} />;
-    case 2: return v < 0.6 ? <Boulder x={x} y={y} s={s * 0.8} /> : v < 0.8 ? <DescentSign x={x} y={y} /> : <Stones x={x} y={y} />;
-    case 3: return v < 0.45 ? <Reeds x={x} y={y} /> : v < 0.8 ? <Bush x={x} y={y} s={s * 0.9} /> : <SigmoidSign x={x} y={y} />;
-    case 4: return v < 0.4 ? <Pine x={x} y={y} s={s} /> : v < 0.65 ? <Cubes x={x} y={y} v={hash(k, r)} /> : v < 0.85 ? <Hut x={x} y={y} /> : <BlockTree x={x} y={y} s={0.9} />;
-    case 5: return v < 0.35 ? <Bars x={x} y={y} /> : v < 0.6 ? <Gauge x={x} y={y} v={hash(r, k)} /> : v < 0.8 ? <ChartBoard x={x} y={y} /> : <Stones x={x} y={y} />;
-    default: return <Pine x={x} y={y} s={s * 0.9} />;
+    case 0:
+      return v < 0.72 ? <BlockTree x={x} y={y} s={s} /> : <Stones x={x} y={y} />;
+    case 1:
+      return v < 0.4 ? (
+        <Wheat x={x} y={y} />
+      ) : v < 0.7 ? (
+        <Furrows x={x} y={y} />
+      ) : v < 0.9 ? (
+        <HayBale x={x} y={y} />
+      ) : (
+        <BlockTree x={x} y={y} s={0.85} />
+      );
+    case 2:
+      return v < 0.6 ? (
+        <Boulder x={x} y={y} s={s * 0.8} />
+      ) : v < 0.8 ? (
+        <DescentSign x={x} y={y} />
+      ) : (
+        <Stones x={x} y={y} />
+      );
+    case 3:
+      return v < 0.45 ? (
+        <Reeds x={x} y={y} />
+      ) : v < 0.8 ? (
+        <Bush x={x} y={y} s={s * 0.9} />
+      ) : (
+        <SigmoidSign x={x} y={y} />
+      );
+    case 4:
+      return v < 0.4 ? (
+        <Pine x={x} y={y} s={s} />
+      ) : v < 0.65 ? (
+        <Cubes x={x} y={y} v={hash(k, r)} />
+      ) : v < 0.85 ? (
+        <Hut x={x} y={y} />
+      ) : (
+        <BlockTree x={x} y={y} s={0.9} />
+      );
+    case 5:
+      return v < 0.35 ? (
+        <Bars x={x} y={y} />
+      ) : v < 0.6 ? (
+        <Gauge x={x} y={y} v={hash(r, k)} />
+      ) : v < 0.8 ? (
+        <ChartBoard x={x} y={y} />
+      ) : (
+        <Stones x={x} y={y} />
+      );
+    default:
+      return <Pine x={x} y={y} s={s * 0.9} />;
   }
 }
 
@@ -123,13 +198,16 @@ const LANDMARKS = LANDMARK_SPECS.map(([ci, at, Building, flip], i) => {
 /* Ground cells under a landmark: flat at the landmark's height, no water, no decoration. */
 const RESERVED = new Map();
 LANDMARKS.forEach((m) => {
-  for (let dk = -FOOTPRINT; dk <= FOOTPRINT; dk++) for (let dr = -FOOTPRINT; dr <= FOOTPRINT; dr++) RESERVED.set(`${m.k + dk},${m.r + dr}`, m.h);
+  for (let dk = -FOOTPRINT; dk <= FOOTPRINT; dk++)
+    for (let dr = -FOOTPRINT; dr <= FOOTPRINT; dr++) RESERVED.set(`${m.k + dk},${m.r + dr}`, m.h);
 });
 
 /* Ground and scenery never change, so they are built once and depth-sorted with the tiles later. */
 const STATIC_LAYER = (() => {
   const out = [];
-  LANDMARKS.forEach(({ key, k, r, h, Building }) => out.push({ y: py(r) + 0.5, key, el: <Building x={px(k)} y={py(r) - h} /> }));
+  LANDMARKS.forEach(({ key, k, r, h, Building }) =>
+    out.push({ y: py(r) + 0.5, key, el: <Building x={px(k)} y={py(r) - h} /> }),
+  );
   const rowMax = ROWS + Math.ceil(TOP_PAD / HH) + 2;
   for (let r = -Math.ceil(BOT_PAD / HH) - 2; r < rowMax; r++) {
     for (let k = -8; k <= 8; k++) {
@@ -158,18 +236,31 @@ const STATIC_LAYER = (() => {
               </>
             )}
             <polygon points={dia(x, top, HW, HH)} fill={c.top} stroke={c.top} strokeWidth=".7" />
-            {c.water && <path d={`M${x - 16} ${top}q8-5 16 0t16 0`} fill="none" stroke="#BFD0C8" strokeWidth="2.2" strokeLinecap="round" />}
+            {c.water && (
+              <path
+                d={`M${x - 16} ${top}q8-5 16 0t16 0`}
+                fill="none"
+                stroke="#BFD0C8"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              />
+            )}
           </g>
         ),
       });
       // Keep the path corridor clear; decorate about half of the other cells.
       const nearPath = c.d <= 1 && Math.abs(r) < ROWS + 3 && r > -3;
-      if (!c.water && !nearPath && !reserved && hash(k + 17, r - 5) > 0.5) out.push({ y: y + 0.01, key: `d${k},${r}`, el: pickDecor(c.zone, x, top, k, r) });
+      if (!c.water && !nearPath && !reserved && hash(k + 17, r - 5) > 0.5)
+        out.push({ y: y + 0.01, key: `d${k},${r}`, el: pickDecor(c.zone, x, top, k, r) });
     }
   }
   // The summit flag, above the last tile.
   const last = NODES[NODES.length - 1];
-  out.push({ y: py(last.r + 3), key: 'flag', el: <SummitFlag x={px(last.off + (last.off > 0 ? -1 : 1))} y={py(last.r + 3)} /> });
+  out.push({
+    y: py(last.r + 3),
+    key: 'flag',
+    el: <SummitFlag x={px(last.off + (last.off > 0 ? -1 : 1))} y={py(last.r + 3)} />,
+  });
   return out;
 })();
 
@@ -202,9 +293,22 @@ function Tile({ n, state, interactive, onSelect }) {
       <polygon points={`${x - hw},${y} ${x},${y + hh} ${x},${y + hh + DEPTH} ${x - hw},${y + DEPTH}`} fill={skin[1]} />
       <polygon points={`${x + hw},${y} ${x},${y + hh} ${x},${y + hh + DEPTH} ${x + hw},${y + DEPTH}`} fill={skin[2]} />
       <polygon className="top" points={dia(x, y, hw, hh)} fill={skin[0]} />
-      {state === 'locked' && <polygon points={dia(x, y, hw * 0.78, hh * 0.78)} fill="none" stroke="#BDB6AA" strokeWidth="1.5" />}
-      {state === 'now' && <polygon className="pulse" points={dia(x, y, hw, hh)} fill="none" stroke="#FBF6EB" strokeWidth="4" />}
-      {state === 'done' && <path d={`M${x - 14} ${y}l9 9l19-19`} fill="none" stroke="#FBF6EB" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />}
+      {state === 'locked' && (
+        <polygon points={dia(x, y, hw * 0.78, hh * 0.78)} fill="none" stroke="#BDB6AA" strokeWidth="1.5" />
+      )}
+      {state === 'now' && (
+        <polygon className="pulse" points={dia(x, y, hw, hh)} fill="none" stroke="#FBF6EB" strokeWidth="4" />
+      )}
+      {state === 'done' && (
+        <path
+          d={`M${x - 14} ${y}l9 9l19-19`}
+          fill="none"
+          stroke="#FBF6EB"
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      )}
       {state !== 'done' && final && lv.lv === CHAPTERS[lv.ch].levels.length - 1 && (
         <>
           <path d={`M${x - 6} ${y + 11}V${y - 15}`} stroke="#2E2118" strokeWidth="3" strokeLinecap="round" />
@@ -225,8 +329,14 @@ function Tile({ n, state, interactive, onSelect }) {
 function Stairs({ x, y }) {
   const step = (dy, s, key) => (
     <g key={key}>
-      <polygon points={`${x - HW * s},${y + dy} ${x},${y + dy + HH * s} ${x},${y + dy + HH * s + 6} ${x - HW * s},${y + dy + 6}`} fill="#8E887D" />
-      <polygon points={`${x + HW * s},${y + dy} ${x},${y + dy + HH * s} ${x},${y + dy + HH * s + 6} ${x + HW * s},${y + dy + 6}`} fill="#7C766C" />
+      <polygon
+        points={`${x - HW * s},${y + dy} ${x},${y + dy + HH * s} ${x},${y + dy + HH * s + 6} ${x - HW * s},${y + dy + 6}`}
+        fill="#8E887D"
+      />
+      <polygon
+        points={`${x + HW * s},${y + dy} ${x},${y + dy + HH * s} ${x},${y + dy + HH * s + 6} ${x + HW * s},${y + dy + 6}`}
+        fill="#7C766C"
+      />
       <polygon points={dia(x, y + dy, HW * s, HH * s)} fill="#C9C3B8" />
     </g>
   );
@@ -256,8 +366,12 @@ function Gate({ ci, x, y, interactive, onOpen }) {
     <g {...a11y}>
       <rect x={x - w / 2} y={y - 19} width={w} height="53" rx="10" fill="#7E5C44" />
       <rect x={x - w / 2} y={y - 25} width={w} height="53" rx="10" fill="#2E2118" />
-      <text x={x} y={y - 6} textAnchor="middle" fontSize="11.5" fontWeight="700" letterSpacing="1.2" fill="#D9A98A">{t1}</text>
-      <text x={x} y={y + 15} textAnchor="middle" fontSize="17" fontWeight="700" fill="#FBF6EB">{c.name}</text>
+      <text x={x} y={y - 6} textAnchor="middle" fontSize="11.5" fontWeight="700" letterSpacing="1.2" fill="#D9A98A">
+        {t1}
+      </text>
+      <text x={x} y={y + 15} textAnchor="middle" fontSize="17" fontWeight="700" fill="#FBF6EB">
+        {c.name}
+      </text>
     </g>
   );
 }
@@ -280,8 +394,12 @@ function Bubble({ flat }) {
       <rect x={bx} y={by + 4} width={bw} height={bh} rx="12" fill="#2E2118" />
       <rect x={bx} y={by} width={bw} height={bh} rx="12" fill="#FBF6EB" />
       <polygon points={tail} fill="#FBF6EB" />
-      <text x={bx + 14} y={by + 24} fontSize="13" fontWeight="700" fill="#A84F32">Next stop</text>
-      <text x={bx + 14} y={by + 44} fontSize="14.5" fontWeight="700" fill="#2E2118">{lv.title}</text>
+      <text x={bx + 14} y={by + 24} fontSize="13" fontWeight="700" fill="#A84F32">
+        Next stop
+      </text>
+      <text x={bx + 14} y={by + 44} fontSize="14.5" fontWeight="700" fill="#2E2118">
+        {lv.title}
+      </text>
     </g>
   );
 }
@@ -310,7 +428,12 @@ function GameMap({ progress, heroAt, cloudsFor, interactive = true, avatar, hero
       const y = py(n.r);
       if (n.type === 'level') {
         const state = n.flat < progress ? 'done' : n.flat === curFlat && progress < TOTAL ? 'now' : 'locked';
-        list.push({ y: y + 0.02, key: `l${n.flat}`, clickable: true, el: <Tile n={n} state={state} interactive={interactive} onSelect={onSelectLevel} /> });
+        list.push({
+          y: y + 0.02,
+          key: `l${n.flat}`,
+          clickable: true,
+          el: <Tile n={n} state={state} interactive={interactive} onSelect={onSelectLevel} />,
+        });
       } else {
         list.push({ y: y + 0.02, key: `s${n.r}`, el: <Stairs x={px(n.off)} y={y - 4} /> });
       }
@@ -328,17 +451,27 @@ function GameMap({ progress, heroAt, cloudsFor, interactive = true, avatar, hero
       aria-hidden={interactive ? undefined : 'true'}
       fontFamily="'Bricolage Grotesque','Trebuchet MS',sans-serif"
     >
-      <g>{objects.map((o) => <g key={o.key} pointerEvents={o.clickable ? undefined : 'none'}>{o.el}</g>)}</g>
+      <g>
+        {objects.map((o) => (
+          <g key={o.key} pointerEvents={o.clickable ? undefined : 'none'}>
+            {o.el}
+          </g>
+        ))}
+      </g>
       {/* Clouds and the avatar are decoration: clicks pass through them to the tiles below. */}
       <g pointerEvents="none">
         {CLOUD_ROWS.map((row) => (
           <g key={row.key} className={`cloud ${row.ch < cloudFrom ? 'gone' : ''}`}>
             <g className={row.drift ? 'drift' : ''}>
-              {row.puffs.map((p, i) => <Cloud key={i} x={p.x} y={p.y} s={p.s} />)}
+              {row.puffs.map((p, i) => (
+                <Cloud key={i} x={p.x} y={p.y} s={p.s} />
+              ))}
             </g>
           </g>
         ))}
-        {[0, 1, 2, 3, 4].map((i) => <Cloud key={`sky${i}`} x={40 + i * 160} y={58 + hash(i, 2) * 40} s={1.1} />)}
+        {[0, 1, 2, 3, 4].map((i) => (
+          <Cloud key={`sky${i}`} x={40 + i * 160} y={58 + hash(i, 2) * 40} s={1.1} />
+        ))}
       </g>
       <g>
         <Gate ci={0} x={W / 2} y={py(0) + 92} interactive={interactive} onOpen={onOpenChapter} />

@@ -42,7 +42,12 @@ function NameEditor() {
     return (
       <div style={{ flex: 1, minWidth: 200 }}>
         <h1 style={{ fontSize: 'clamp(1.8rem,3vw,2.5rem)' }}>{player.name}</h1>
-        <p className="muted">Level {rank(player.xp)} climber · <button type="button" className="linkish" onClick={() => setEditing(true)}>Edit name</button></p>
+        <p className="muted">
+          Level {rank(player.xp)} climber ·{' '}
+          <button type="button" className="linkish" onClick={() => setEditing(true)}>
+            Edit name
+          </button>
+        </p>
       </div>
     );
   }
@@ -50,12 +55,29 @@ function NameEditor() {
     <form onSubmit={save} style={{ flex: 1, minWidth: 200, display: 'grid', gap: 8 }} noValidate>
       <label className="field">
         Display name
-        <input value={name} onChange={(e) => setName(e.target.value)} className={valid ? '' : 'bad'} autoFocus maxLength={40} />
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className={valid ? '' : 'bad'}
+          autoFocus
+          maxLength={40}
+        />
         {!valid && <small>Use 2 to 30 characters.</small>}
       </label>
       <div className="actions">
-        <button className="btn primary" type="submit" disabled={!valid}>Save</button>
-        <button className="btn" type="button" onClick={() => { setName(player.name); setEditing(false); }}>Cancel</button>
+        <button className="btn primary" type="submit" disabled={!valid}>
+          Save
+        </button>
+        <button
+          className="btn"
+          type="button"
+          onClick={() => {
+            setName(player.name);
+            setEditing(false);
+          }}
+        >
+          Cancel
+        </button>
       </div>
     </form>
   );
@@ -75,21 +97,47 @@ export default function Profile() {
       <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
         <Avatar avatar={player.avatar} style={{ width: 92, height: 112 }} />
         <NameEditor />
-        <Link className="btn" to="/avatar">Edit avatar</Link>
+        <Link className="btn" to="/avatar">
+          Edit avatar
+        </Link>
       </div>
       <div className="stats">
-        <div className="stat"><b className="mono">{player.xp}</b><span>Total XP</span></div>
-        <div className="stat"><b className="mono">{lvl}</b><span>Level</span></div>
-        <div className="stat"><b className="mono">{streak}</b><span>Day streak</span></div>
-        <div className="stat"><b className="mono">{player.progress}/{TOTAL}</b><span>Levels completed</span></div>
+        <div className="stat">
+          <b className="mono">{player.xp}</b>
+          <span>Total XP</span>
+        </div>
+        <div className="stat">
+          <b className="mono">{lvl}</b>
+          <span>Level</span>
+        </div>
+        <div className="stat">
+          <b className="mono">{streak}</b>
+          <span>Day streak</span>
+        </div>
+        <div className="stat">
+          <b className="mono">
+            {player.progress}/{TOTAL}
+          </b>
+          <span>Levels completed</span>
+        </div>
       </div>
       <div className="panel" style={{ display: 'grid', gap: 8 }}>
-        <div className="readout"><h3>To level {lvl + 1}</h3><span className="mono">{into}/{XP_PER_RANK} XP</span></div>
+        <div className="readout">
+          <h3>To level {lvl + 1}</h3>
+          <span className="mono">
+            {into}/{XP_PER_RANK} XP
+          </span>
+        </div>
         <Bar value={into} max={XP_PER_RANK} label={`${into} of ${XP_PER_RANK} XP to the next level`} />
       </div>
       <div className="two">
         <section className="panel" style={{ display: 'grid', gap: 12, alignContent: 'start' }}>
-          <h3>Badges <span className="muted mono" style={{ fontSize: '.9rem' }}>{list.filter((b) => b.earned).length}/{list.length}</span></h3>
+          <h3>
+            Badges{' '}
+            <span className="muted mono" style={{ fontSize: '.9rem' }}>
+              {list.filter((b) => b.earned).length}/{list.length}
+            </span>
+          </h3>
           <div className="badges">
             {list.map((b) => (
               <div key={b.id} className={`badge ${b.earned ? '' : 'locked'}`}>
@@ -118,8 +166,20 @@ export default function Profile() {
               const done = chapterDone(player.progress, i);
               return (
                 <div key={c.id}>
-                  <div className="readout"><Link to={`/chapter/${i}`} style={{ fontWeight: 400, color: 'inherit' }}>{c.name}</Link><span className="mono">{done}/{c.levels.length}</span></div>
-                  <Bar value={done} max={c.levels.length} tone="moss" label={`${c.name}: ${done} of ${c.levels.length}`} />
+                  <div className="readout">
+                    <Link to={`/chapter/${i}`} style={{ fontWeight: 400, color: 'inherit' }}>
+                      {c.name}
+                    </Link>
+                    <span className="mono">
+                      {done}/{c.levels.length}
+                    </span>
+                  </div>
+                  <Bar
+                    value={done}
+                    max={c.levels.length}
+                    tone="moss"
+                    label={`${c.name}: ${done} of ${c.levels.length}`}
+                  />
                 </div>
               );
             })}

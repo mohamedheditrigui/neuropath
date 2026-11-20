@@ -60,7 +60,19 @@ export function PlayerProvider({ children }) {
   );
 
   const value = useMemo(
-    () => ({ user, player, ready, signUp, logIn, logOut, update, finishLevel, pendingJump, clearJump: () => setPendingJump(null), mode: api.mode }),
+    () => ({
+      user,
+      player,
+      ready,
+      signUp,
+      logIn,
+      logOut,
+      update,
+      finishLevel,
+      pendingJump,
+      clearJump: () => setPendingJump(null),
+      mode: api.mode,
+    }),
     [user, player, ready, signUp, logIn, logOut, update, finishLevel, pendingJump],
   );
 
