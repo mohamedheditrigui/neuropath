@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CHAPTERS, FLAT, TOTAL, XP_PER_LEVEL, chapterLabel, levelPath } from '../data/content.js';
+import { lessonOf } from '../data/lessons/index.js';
 import { usePlayer } from '../context/PlayerContext.jsx';
 import { chapterDone, stateOf } from '../services/game.js';
 import AppShell from '../components/layout/AppShell.jsx';
@@ -11,16 +12,10 @@ import PublicHeader from '../components/layout/PublicHeader.jsx';
 import Icon from '../components/Icon.jsx';
 import { Bar } from '../components/ui.jsx';
 
-// Name of the interactive lab each chapter uses (see src/components/labs).
-const LAB_NAMES = {
-  line: 'Line fitting lab',
-  multi: 'Multi-feature lab',
-  descent: 'Gradient descent lab',
-  logistic: 'Sigmoid lab',
-  knn: 'Nearest neighbours lab',
-  metrics: 'Confusion matrix lab',
-};
-const QUIZ_TOTAL = CHAPTERS.reduce((n, c) => n + c.quiz.length, 0);
+// Every lesson level has its own course, activity and 3-question quiz (src/data/lessons, src/components/labs).
+const lessonsOf = (c) => c.levels.map((_, li) => lessonOf(c.id, li)).filter(Boolean);
+const QUIZ_TOTAL = CHAPTERS.reduce((n, c) => n + lessonsOf(c).reduce((m, l) => m + l.quiz.length, 0), 0);
+const minutesOf = (c) => lessonsOf(c).reduce((m, l) => m + l.minutes, 0);
 const WORD = { done: 'Completed', now: 'Your next level', locked: 'Locked' };
 
 function ProgramContent() {
@@ -64,8 +59,8 @@ function ProgramContent() {
         <p className="eyebrow">The program</p>
         <h1>Everything you will learn, level by level.</h1>
         <p>
-          From your first straight line to a trained model you can explain. Each level is a short lesson with an
-          interactive lab, and every chapter ends with a quiz.
+          From your first straight line to a trained model you can explain. Each level is a short lesson, a hands-on
+          activity of its own and a three-question quiz.
         </p>
         <dl className="prog-facts">
           <div>
@@ -148,7 +143,11 @@ function ProgramContent() {
                     <span>
                       {c.all.length} {c.final ? 'steps' : 'levels'}
                     </span>
-                    <span>{c.final ? 'Guided project' : `${LAB_NAMES[c.lab]} · ${c.quiz.length}-question quiz`}</span>
+                    <span>
+                      {c.final
+                        ? 'Guided project'
+                        : `${c.all.length} activities · ${c.all.length * 3} quiz questions · about ${minutesOf(c)} min`}
+                    </span>
                   </span>
                   <span className={`prog-chev ${isOpen ? 'up' : ''}`} aria-hidden="true">
                     <Icon name="arrow" />
