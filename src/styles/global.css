@@ -427,3 +427,20 @@ fieldset { margin: 0; min-width: 0; }
 .ch-banner { background-image: linear-gradient(rgba(46, 33, 24, .25), rgba(46, 33, 24, .25)); }
 .ch-banner .eyebrow { color: var(--parchment); }
 .prog-levels .gem, .prog-num { background-image: linear-gradient(rgba(46, 33, 24, .25), rgba(46, 33, 24, .25)); }
+
+/* ---------- Lesson course text ---------- */
+.lesson-body { display: grid; gap: 12px; font-size: 1.04rem; line-height: 1.62; }
+.lesson-body code { font: 600 .92em var(--mono); background: var(--sand); padding: .05em .35em; border-radius: 5px; }
+.lb-h { font-size: clamp(1.2rem, 2vw, 1.45rem); margin-top: 8px; }
+.lb-meta { font-size: .95rem; }
+.lb-f { margin: 2px 0; display: grid; gap: 6px; }
+.lb-f .formula { font-size: 1.12rem; }
+.lb-f figcaption { font-size: .92rem; color: var(--ink-2); text-align: center; }
+.lb-ex { background: var(--paper); border: 1.5px solid #DCCBA9; border-left: 5px solid var(--moss); border-radius: var(--r-s); padding: 14px 16px; display: grid; gap: 6px; }
+.lb-ex .eyebrow { color: var(--moss-d); }
+.lb-ex ol { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; }
+.lb-list { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; }
+.lb-note { padding: .7em .9em; border-radius: var(--r-s); }
+.lb-note.warn { background: #F3D9C7; }
+.lb-note.go { background: #DDE3BE; }
+.lb-recap { display: grid; gap: 8px; max-width: 72ch; }
